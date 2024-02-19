@@ -3,6 +3,8 @@ package robots.gui;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
@@ -37,7 +39,25 @@ public class MainApplicationFrame extends JFrame
         addWindow(gameWindow);
 
         setJMenuBar(generateMenuBar());
-        setDefaultCloseOperation(HIDE_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                launchExitDialog();
+            }
+        });
+
+    }
+
+    private void launchExitDialog() {
+        int userChoice = JOptionPane.showConfirmDialog(
+                this,
+                "Вы уверены?",
+                "Выйти",
+                JOptionPane.YES_NO_OPTION);
+        if (userChoice == JOptionPane.YES_OPTION)
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
     
     protected LogWindow createLogWindow()
@@ -120,14 +140,28 @@ public class MainApplicationFrame extends JFrame
         
         {
             JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
-            addLogMessageItem.addActionListener((event) -> {
-                Logger.debug("Новая строка");
-            });
+            addLogMessageItem.addActionListener((event) -> Logger.debug("Новая строка")
+            );
             testMenu.add(addLogMessageItem);
+        }
+
+        JMenu quitMenu = new JMenu("Выход");
+        quitMenu.setMnemonic(KeyEvent.VK_T);
+        quitMenu.getAccessibleContext().setAccessibleDescription(
+                "Выйти из программы");
+
+        {
+            JMenuItem addLogMessageItem = new JMenuItem("Выход", KeyEvent.VK_S);
+            addLogMessageItem.addActionListener((event) -> {
+                WindowEvent closeEvent = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+                Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeEvent);
+            });
+            quitMenu.add(addLogMessageItem);
         }
 
         menuBar.add(lookAndFeelMenu);
         menuBar.add(testMenu);
+        menuBar.add(quitMenu);
         return menuBar;
     }
     
