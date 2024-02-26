@@ -8,9 +8,17 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 
+/**
+ * Отвечает за создание и поведение MenuBar окна {@link #frame}
+ */
 public class PaneMenuBar extends JMenuBar {
     private final MainApplicationFrame frame;
 
+    /**
+     * Создаёт объект {@link PaneMenuBar} с объектом окна {@link MainApplicationFrame}
+     * и добавляет к {@link PaneMenuBar} некоторые {@link JMenu}
+     * @param mainApplicationFrame окно, которому требуется {@link PaneMenuBar}
+     */
     public PaneMenuBar(MainApplicationFrame mainApplicationFrame) {
         this.frame = mainApplicationFrame;
         add(createViewModeBar());
@@ -18,6 +26,12 @@ public class PaneMenuBar extends JMenuBar {
         add(createOptionBar());
     }
 
+    /**
+     * Общий шаблон создания объектов {@link JMenu}
+     * @param name имя меню
+     * @param description информация, для людей с ограниченными возможностями
+     * @return объект {@link JMenu} с указаной информацией
+     */
     private JMenu createJMenu(String name, String description) {
         JMenu menu = new JMenu(name);
         menu.setMnemonic(KeyEvent.VK_T);
@@ -25,6 +39,10 @@ public class PaneMenuBar extends JMenuBar {
         return menu;
     }
 
+    /**
+     * Создание пункта меню для измненеие темы приложения
+     * @return объект {@link JMenu} c набором тем для прилоежния
+     */
     private JMenu createViewModeBar() {
         JMenu lookAndFeelMenu = createJMenu("Режим отображения",
                 "Управление режимом отображения приложения");
@@ -41,6 +59,12 @@ public class PaneMenuBar extends JMenuBar {
         return lookAndFeelMenu;
     }
 
+    /**
+     * Изменяет тему приложения
+     * @param text назавние темы, отображаемое пользователю
+     * @param className имя класса, который реализует внешний вид приложения
+     * @return объект {@link JMenuItem} с указаной темой
+     */
     private JMenuItem getViewMenuItem(String text, String className) {
         JMenuItem systemLookAndFeel = new JMenuItem(text, KeyEvent.VK_S);
         systemLookAndFeel.addActionListener((event) -> {
@@ -50,11 +74,18 @@ public class PaneMenuBar extends JMenuBar {
         return systemLookAndFeel;
     }
 
+    /**
+     * Устанавливает тему по умолчанию, отображамую пользователю при запуске
+     */
     public void setDefaultTheme() {
         setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         frame.invalidate();
     }
 
+    /**
+     * Создание пункта меню для отладки приложения
+     * @return объект {@link JMenu} c набором инструментов для отладки
+     */
     private JMenu createTestMenuBar() {
         JMenu testMenu = createJMenu("Тесты",
                 "Тестовые команды");
@@ -63,6 +94,10 @@ public class PaneMenuBar extends JMenuBar {
         return testMenu;
     }
 
+    /**
+     * Отображение сообщения в окно класса {@link Logger}
+     * @return объект {@link JMenuItem} с реализацией интрумента отладки
+     */
     private JMenuItem getTestMenuItem() {
         JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
         addLogMessageItem.addActionListener((event) ->
@@ -70,6 +105,10 @@ public class PaneMenuBar extends JMenuBar {
         return addLogMessageItem;
     }
 
+    /**
+     * Cоздание опции меню с опциями приложения
+     * @return объект {@link JMenu} c некоторыми опциями
+     */
     private JMenu createOptionBar() {
         JMenu quitMenu = createJMenu("Опции",
                 "Опции окна");
@@ -79,6 +118,10 @@ public class PaneMenuBar extends JMenuBar {
         return quitMenu;
     }
 
+    /**
+     * Опция, которая реализуею кнопку выхода из приложения
+     * @return объект {@link JMenuItem} генерируеющий событияе закрытия окна
+     */
     private JMenuItem getExitMentItem() {
         JMenuItem addQuitItem = new JMenuItem("Выход", KeyEvent.VK_S);
         addQuitItem.addActionListener((event) -> {
@@ -88,6 +131,10 @@ public class PaneMenuBar extends JMenuBar {
         return addQuitItem;
     }
 
+    /**
+     * Опция, предоставляющая информацию о программе
+     * @return объект {@link JMenuItem}, выводящий информацию о приложении в отдельном окне
+     */
     private JMenuItem getInfoAboutProgram() {
         JMenuItem addInfoItem = new JMenuItem("О программе");
         addInfoItem.addActionListener(e -> {
@@ -122,8 +169,10 @@ public class PaneMenuBar extends JMenuBar {
         return addInfoItem;
     }
 
-
-
+    /**
+     * Устанавливает внешний вид для приложения на основе указанного имени класса.
+     * @param className имя класса, представляющего внешний вид
+     */
     private void setLookAndFeel(String className)
     {
         try

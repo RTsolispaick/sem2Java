@@ -10,16 +10,16 @@ import javax.swing.*;
 import robots.log.Logger;
 
 /**
- * Что требуется сделать:
- * 1. Метод создания меню перегружен функционалом и трудно читается. 
- * Следует разделить его на серию более простых методов (или вообще выделить отдельный класс).
- *
+ * Главное окно прилоежния
  */
 public class MainApplicationFrame extends JFrame
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private final PaneMenuBar paneMenuBar = new PaneMenuBar(this);
 
+    /**
+     * Конструктор для создания главного окна
+     */
     public MainApplicationFrame() {
         setContentPane(desktopPane);
         setJMenuBar(paneMenuBar);
@@ -38,6 +38,9 @@ public class MainApplicationFrame extends JFrame
         pack();
     }
 
+    /**
+     * Устанавливает визуальные отношения окна (размер, название и станадартную тему)
+     */
     public void setVisualMainFrame() {
         int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -49,6 +52,9 @@ public class MainApplicationFrame extends JFrame
         paneMenuBar.setDefaultTheme();
     }
 
+    /**
+     * Реализует логику закрытия окна
+     */
     private void launchExitDialog() {
         String [] options = {"Да", "Нет"};
         int userChoice = JOptionPane.showOptionDialog(
@@ -64,11 +70,19 @@ public class MainApplicationFrame extends JFrame
             setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
+    /**
+     * Привязывает внутренние окна к главному окну
+     * @param frame объект внутреннего окна
+     */
     protected void addWindow(JInternalFrame frame) {
         desktopPane.add(frame);
         frame.setVisible(true);
     }
 
+    /**
+     * Создаёт внутреннее окно класса {@link LogWindow} и настраивает его размер
+     * @return готовый объект окна {@link LogWindow}
+     */
     protected LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
         logWindow.setBounds(10,10,
@@ -78,6 +92,10 @@ public class MainApplicationFrame extends JFrame
         return logWindow;
     }
 
+    /**
+     * Создаёт внутреннее окно класса {@link GameWindow} и настраивает его размер
+     * @return готовый объект окна {@link GameWindow}
+     */
     protected GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
         gameWindow.setBounds(320, 10,
