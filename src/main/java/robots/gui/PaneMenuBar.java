@@ -30,11 +30,12 @@ public class PaneMenuBar extends JMenuBar {
      * Общий шаблон создания объектов {@link JMenu}
      * @param name имя меню
      * @param description информация, для людей с ограниченными возможностями
+     * @param keyEvent код ключа, представляющий собой мнемонику
      * @return объект {@link JMenu} с указаной информацией
      */
-    private JMenu createJMenu(String name, String description) {
+    private JMenu createJMenu(String name, String description, int keyEvent) {
         JMenu menu = new JMenu(name);
-        menu.setMnemonic(KeyEvent.VK_T);
+        menu.setMnemonic(keyEvent);
         menu.getAccessibleContext().setAccessibleDescription(description);
         return menu;
     }
@@ -45,7 +46,7 @@ public class PaneMenuBar extends JMenuBar {
      */
     private JMenu createViewModeBar() {
         JMenu lookAndFeelMenu = createJMenu("Режим отображения",
-                "Управление режимом отображения приложения");
+                "Управление режимом отображения приложения", KeyEvent.VK_S);
 
         lookAndFeelMenu.add(getViewMenuItem("Системная схема",
                     UIManager.getSystemLookAndFeelClassName()));
@@ -88,7 +89,7 @@ public class PaneMenuBar extends JMenuBar {
      */
     private JMenu createTestMenuBar() {
         JMenu testMenu = createJMenu("Тесты",
-                "Тестовые команды");
+                "Тестовые команды", KeyEvent.VK_T);
 
         testMenu.add(getTestMenuItem());
         return testMenu;
@@ -99,7 +100,7 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem} с реализацией интрумента отладки
      */
     private JMenuItem getTestMenuItem() {
-        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
+        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_T);
         addLogMessageItem.addActionListener((event) ->
                 Logger.debug("Всё нормально"));
         return addLogMessageItem;
@@ -111,7 +112,7 @@ public class PaneMenuBar extends JMenuBar {
      */
     private JMenu createOptionBar() {
         JMenu quitMenu = createJMenu("Опции",
-                "Опции окна");
+                "Опции окна", KeyEvent.VK_O);
 
         quitMenu.add(getExitMentItem());
         quitMenu.add(getInfoAboutProgram());
@@ -123,7 +124,7 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem} генерируеющий событияе закрытия окна
      */
     private JMenuItem getExitMentItem() {
-        JMenuItem addQuitItem = new JMenuItem("Выход", KeyEvent.VK_S);
+        JMenuItem addQuitItem = new JMenuItem("Выход", KeyEvent.VK_Q);
         addQuitItem.addActionListener((event) -> {
             WindowEvent closeEvent = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
             Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeEvent);
@@ -136,7 +137,7 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem}, выводящий информацию о приложении в отдельном окне
      */
     private JMenuItem getInfoAboutProgram() {
-        JMenuItem addInfoItem = new JMenuItem("О программе");
+        JMenuItem addInfoItem = new JMenuItem("О программе", KeyEvent.VK_I);
         addInfoItem.addActionListener(e -> {
             String message = "<html><div style='text-align: center;'>Старающийся комарик - это увлекательная игра, в которой игроку предстоит помочь маленькому комарику долететь до точки назначения.</div>" +
                     "<div style='text-align: center;'>Несмотря на свою маленькую и хрупкую природу, комарик мечтает достичь цели, находящейся на другом конце экрана.</div>" +
