@@ -69,18 +69,10 @@ public class PaneMenuBar extends JMenuBar {
     private JMenuItem getViewMenuItem(String text, String className) {
         JMenuItem systemLookAndFeel = new JMenuItem(text, KeyEvent.VK_S);
         systemLookAndFeel.addActionListener((event) -> {
-            setLookAndFeel(className);
+            frame.setLookAndFeel(className);
             frame.invalidate();
         });
         return systemLookAndFeel;
-    }
-
-    /**
-     * Устанавливает тему по умолчанию, отображамую пользователю при запуске
-     */
-    public void setDefaultTheme() {
-        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        frame.invalidate();
     }
 
     /**
@@ -168,23 +160,5 @@ public class PaneMenuBar extends JMenuBar {
             dialog.setVisible(true);
         });
         return addInfoItem;
-    }
-
-    /**
-     * Устанавливает внешний вид для приложения на основе указанного имени класса.
-     * @param className имя класса, представляющего внешний вид
-     */
-    private void setLookAndFeel(String className)
-    {
-        try
-        {
-            UIManager.setLookAndFeel(className);
-            SwingUtilities.updateComponentTreeUI(frame);
-        }
-        catch (ClassNotFoundException | InstantiationException
-               | IllegalAccessException | UnsupportedLookAndFeelException e)
-        {
-            Logger.debug("Всё очень плохо");
-        }
     }
 }

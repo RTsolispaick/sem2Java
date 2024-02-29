@@ -10,19 +10,18 @@ import javax.swing.*;
 import robots.log.Logger;
 
 /**
- * Главное окно прилоежния
+ * Главное окно приложения
  */
 public class MainApplicationFrame extends JFrame
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
-    private final PaneMenuBar paneMenuBar = new PaneMenuBar(this);
 
     /**
      * Конструктор для создания главного окна
      */
     public MainApplicationFrame() {
         setContentPane(desktopPane);
-        setJMenuBar(paneMenuBar);
+        setJMenuBar(new PaneMenuBar(this));
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -49,7 +48,7 @@ public class MainApplicationFrame extends JFrame
                 screenSize.height - inset * 2);
 
         setTitle("Старающийся комарик");
-        paneMenuBar.setDefaultTheme();
+        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
 
     /**
@@ -74,7 +73,7 @@ public class MainApplicationFrame extends JFrame
      * Привязывает внутренние окна к главному окну
      * @param frame объект внутреннего окна
      */
-    protected void addWindow(JInternalFrame frame) {
+    private void addWindow(JInternalFrame frame) {
         desktopPane.add(frame);
         frame.setVisible(true);
     }
@@ -83,7 +82,7 @@ public class MainApplicationFrame extends JFrame
      * Создаёт внутреннее окно класса {@link LogWindow} и настраивает его размер
      * @return готовый объект окна {@link LogWindow}
      */
-    protected LogWindow createLogWindow() {
+    private LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
         logWindow.setBounds(10,10,
                 300, 650);
@@ -96,12 +95,30 @@ public class MainApplicationFrame extends JFrame
      * Создаёт внутреннее окно класса {@link GameWindow} и настраивает его размер
      * @return готовый объект окна {@link GameWindow}
      */
-    protected GameWindow createGameWindow() {
+    private GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
         gameWindow.setBounds(320, 10,
                 400, 400);
         setMinimumSize(gameWindow.getSize());
         Logger.debug("Окно игры работает");
         return gameWindow;
+    }
+
+    /**
+     * Устанавливает внешний вид для приложения на основе указанного имени класса.
+     * @param className имя класса, представляющего внешний вид
+     */
+    public void setLookAndFeel(String className)
+    {
+        try
+        {
+            UIManager.setLookAndFeel(className);
+            SwingUtilities.updateComponentTreeUI(this);
+        }
+        catch (ClassNotFoundException | InstantiationException
+               | IllegalAccessException | UnsupportedLookAndFeelException e)
+        {
+            Logger.debug(e.getMessage());
+        }
     }
 }
