@@ -4,16 +4,19 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.NoSuchElementException;
 
 import javax.swing.*;
 
 import robots.log.Logger;
+import robots.serialize.SerializationController;
+import robots.serialize.Stateful;
+import robots.serialize.WindowState;
 
 /**
  * Главное окно приложения
  */
-public class MainApplicationFrame extends JFrame
-{
+public class MainApplicationFrame extends JFrame implements Stateful {
     private final JDesktopPane desktopPane = new JDesktopPane();
 
     /**
@@ -21,6 +24,13 @@ public class MainApplicationFrame extends JFrame
      */
     public MainApplicationFrame() {
         setContentPane(desktopPane);
+
+        try {
+            restore();
+        } catch (NoSuchElementException ignored) {
+            setVisualMainFrame();
+        }
+
         setJMenuBar(new PaneMenuBar(this));
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -31,10 +41,8 @@ public class MainApplicationFrame extends JFrame
             }
         });
 
-        addWindow(createLogWindow());
         addWindow(createGameWindow());
-
-        pack();
+        addWindow(createLogWindow());
     }
 
     /**
@@ -48,7 +56,6 @@ public class MainApplicationFrame extends JFrame
                 screenSize.height - inset * 2);
 
         setTitle("Старающийся комарик");
-        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
 
     /**
@@ -65,8 +72,10 @@ public class MainApplicationFrame extends JFrame
                 null,
                 options,
                 options[0]);
-        if (userChoice == JOptionPane.YES_OPTION)
+        if (userChoice == JOptionPane.YES_OPTION) {
+            saveStatesWindow();
             setDefaultCloseOperation(EXIT_ON_CLOSE);
+        }
     }
 
     /**
@@ -74,8 +83,10 @@ public class MainApplicationFrame extends JFrame
      * @param frame объект внутреннего окна
      */
     private void addWindow(JInternalFrame frame) {
-        desktopPane.add(frame);
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            desktopPane.add(frame);
+            frame.setVisible(true);
+        });
     }
 
     /**
@@ -84,9 +95,13 @@ public class MainApplicationFrame extends JFrame
      */
     private LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        logWindow.setBounds(10,10,
-                300, 650);
-        setMinimumSize(logWindow.getSize());
+        try {
+            logWindow.restore();
+        } catch (NoSuchElementException e) {
+            logWindow.setBounds(10,10,
+                    300, 650);
+            setMinimumSize(logWindow.getSize());
+        }
         Logger.debug("Протокол работает");
         return logWindow;
     }
@@ -97,9 +112,13 @@ public class MainApplicationFrame extends JFrame
      */
     private GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
-        gameWindow.setBounds(320, 10,
-                400, 400);
-        setMinimumSize(gameWindow.getSize());
+        try {
+            gameWindow.restore();
+        } catch (NoSuchElementException e) {
+            gameWindow.setBounds(320, 10,
+                    400, 400);
+            setMinimumSize(gameWindow.getSize());
+        }
         Logger.debug("Окно игры работает");
         return gameWindow;
     }
@@ -118,7 +137,36 @@ public class MainApplicationFrame extends JFrame
         catch (ClassNotFoundException | InstantiationException
                | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            Logger.debug(e.getMessage());
+            Logger.debug("Ошибка setLookAndFeel");
         }
+    }
+
+    private void saveStatesWindow() {
+        save();
+
+        for (JInternalFrame c : desktopPane.getAllFrames()) {
+            if (c instanceof Stateful)
+                ((Stateful) c).save();
+        }
+
+        SerializationController.get().flush();
+    }
+
+    @Override
+    public void restore() throws NoSuchElementException {
+        WindowState ws = SerializationController.get().loadState("main_window");
+        setLocation(ws.getLocation());
+        setSize(ws.getSize());
+        setTitle(ws.getTitle());
+    }
+
+    @Override
+    public void save() {
+        WindowState ws = new WindowState(
+                getSize(),
+                getLocation(),
+                getTitle(),
+                false);
+        SerializationController.get().saveState("main_window", ws);
     }
 }
