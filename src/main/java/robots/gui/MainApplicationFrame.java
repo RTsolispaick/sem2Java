@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 import javax.swing.*;
 
 import robots.log.Logger;
-import robots.serialize.SerializationController;
+import robots.serialize.WindowStateManager;
 import robots.serialize.Stateful;
 import robots.serialize.WindowState;
 
@@ -137,10 +137,18 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         catch (ClassNotFoundException | InstantiationException
                | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            Logger.debug("Ошибка setLookAndFeel");
+            Logger.debug("Ошибка в setLookAndFeel");
         }
     }
 
+    /**
+     * Сохраняет состояния окон.
+     * <p>
+     * Метод сначала сохраняет состояние главного окна, затем состояния всех внутренних окон
+     * , если они реализуют интерфейс {@link Stateful}.
+     * После чего метод выполняет сброс всех состояний в сериализуемое хранилище.
+     * </p>
+     */
     private void saveStatesWindow() {
         save();
 
@@ -149,12 +157,12 @@ public class MainApplicationFrame extends JFrame implements Stateful {
                 ((Stateful) c).save();
         }
 
-        SerializationController.get().flush();
+        WindowStateManager.get().flush();
     }
 
     @Override
     public void restore() throws NoSuchElementException {
-        WindowState ws = SerializationController.get().loadState("main_window");
+        WindowState ws = WindowStateManager.get().loadState("main_window");
         setLocation(ws.getLocation());
         setSize(ws.getSize());
         setTitle(ws.getTitle());
@@ -167,6 +175,6 @@ public class MainApplicationFrame extends JFrame implements Stateful {
                 getLocation(),
                 getTitle(),
                 false);
-        SerializationController.get().saveState("main_window", ws);
+        WindowStateManager.get().saveState("main_window", ws);
     }
 }

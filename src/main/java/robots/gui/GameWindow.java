@@ -1,6 +1,6 @@
 package robots.gui;
 
-import robots.serialize.SerializationController;
+import robots.serialize.WindowStateManager;
 import robots.serialize.Stateful;
 import robots.serialize.WindowState;
 
@@ -23,7 +23,7 @@ public class GameWindow extends JInternalFrame implements Stateful {
 
     @Override
     public void restore() throws NoSuchElementException {
-        WindowState ws = SerializationController.get().loadState("game_window");
+        WindowState ws = WindowStateManager.get().loadState("game_window");
         setLocation(ws.getLocation());
         setSize(ws.getSize());
         setMinimumSize(ws.getSize());
@@ -43,6 +43,6 @@ public class GameWindow extends JInternalFrame implements Stateful {
                 getTitle(),
                 isIcon()
         );
-        SerializationController.get().saveState("game_window", ws);
+        WindowStateManager.get().saveState("game_window", ws);
     }
 }

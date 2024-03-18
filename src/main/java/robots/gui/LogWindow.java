@@ -11,7 +11,7 @@ import javax.swing.*;
 import robots.log.LogChangeListener;
 import robots.log.LogEntry;
 import robots.log.LogWindowSource;
-import robots.serialize.SerializationController;
+import robots.serialize.WindowStateManager;
 import robots.serialize.Stateful;
 import robots.serialize.WindowState;
 
@@ -54,7 +54,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
 
     @Override
     public void restore() throws NoSuchElementException {
-        WindowState ws = SerializationController.get().loadState("log_window");
+        WindowState ws = WindowStateManager.get().loadState("log_window");
         setLocation(ws.getLocation());
         setSize(ws.getSize());
         setMinimumSize(ws.getSize());
@@ -74,6 +74,6 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
                 getTitle(),
                 isIcon()
         );
-        SerializationController.get().saveState("log_window", ws);
+        WindowStateManager.get().saveState("log_window", ws);
     }
 }
