@@ -1,74 +1,55 @@
 package robots.serialize;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-
 
 /**
  * Класс WindowStateManager предоставляет функциональность для сериализации и десериализации состояний окон.
  */
 public class WindowStateManager {
-    private static WindowStateManager windowStateManager;
     private final WindowIO windowIO = new WindowIO();
-    private Map<String, WindowState> windowStates;
+    private Map<String, WindowState> windowStateMap = new HashMap<>();
 
     /**
-     * Получает экземпляр WindowStateManager.
+     * Сохраняет состояние главного окна и внутренних окон.
      *
-     * @return экземпляр WindowStateManager
+     * @param frame            Главное окно JFrame.
+     * @param jInternalFrames  Массив внутренних окон JInternalFrame.
      */
-    public static synchronized WindowStateManager get() {
-        if (windowStateManager == null)
-            windowStateManager = new WindowStateManager();
-        return windowStateManager;
+    public void saveState(JFrame frame, JInternalFrame[] jInternalFrames) {
+        if (frame instanceof Stateful)
+            windowStateMap.put(frame.getClass().getName(),((Stateful) frame).formationState());
+
+        for (JInternalFrame jInternalFrame : jInternalFrames)
+            if (jInternalFrame instanceof Stateful)
+                windowStateMap.put(jInternalFrame.getClass().getName(), ((Stateful) jInternalFrame).formationState());
+
+        windowIO.saveToJson(windowStateMap);
     }
 
     /**
-     * Приватный конструктор для создания экземпляра WindowStateManager.
-     * Загружает сохраненные состояния окон из файла при инициализации.
+     * Загружает состояние главного окна и внутренних окон.
+     *
+     * @param frame            Главное окно JFrame.
+     * @param jInternalFrames  Массив внутренних окон JInternalFrame.
      */
-    private WindowStateManager() {
+    public void loadState(JFrame frame, JInternalFrame[] jInternalFrames) {
         try {
-            windowStates = windowIO.loadFromFile();
+            windowStateMap = windowIO.loadFromJson();
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
-            windowStates = new HashMap<>();
-            windowIO.saveToFile((Serializable) windowStates);
         } catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-    }
 
-    /**
-     * Сохраняет состояние окна по заданному идентификатору.
-     *
-     * @param id идентификатор состояния окна
-     * @param ws состояние окна для сохранения
-     */
-    public void saveState(String id, WindowState ws) {
-        windowStates.put(id, ws);
-    }
+        if (frame instanceof Stateful)
+            ((Stateful) frame).deformationState(windowStateMap.get(frame.getClass().getName()));
 
-    /**
-     * Загружает состояние окна по заданному идентификатору.
-     *
-     * @param id идентификатор состояния окна
-     * @return состояние окна, сохраненное под заданным идентификатором
-     * @throws NoSuchElementException если состояние окна с указанным идентификатором не найдено
-     */
-    public WindowState loadState(String id) throws NoSuchElementException {
-        if (!windowStates.containsKey(id))
-            throw new NoSuchElementException("Не найдено состояние окна %s".formatted(id));
-        return new WindowState(windowStates.get(id));
-    }
-
-    /**
-     * Выполняет сохранение текущих состояний окон в файл.
-     */
-    public void flush() {
-        windowIO.saveToFile((Serializable) windowStates);
+        for (JInternalFrame jInternalFrame : jInternalFrames)
+            if (jInternalFrame instanceof Stateful)
+                ((Stateful) jInternalFrame).deformationState(windowStateMap.get(jInternalFrame.getClass().getName()));
     }
 }

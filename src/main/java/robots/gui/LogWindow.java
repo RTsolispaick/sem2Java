@@ -1,19 +1,14 @@
 package robots.gui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.TextArea;
-import java.beans.PropertyVetoException;
-import java.util.NoSuchElementException;
-
-import javax.swing.*;
-
 import robots.log.LogChangeListener;
 import robots.log.LogEntry;
 import robots.log.LogWindowSource;
-import robots.serialize.WindowStateManager;
 import robots.serialize.Stateful;
 import robots.serialize.WindowState;
+
+import javax.swing.*;
+import java.awt.*;
+import java.beans.PropertyVetoException;
 
 public class LogWindow extends JInternalFrame implements LogChangeListener, Stateful
 {
@@ -52,28 +47,33 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
         EventQueue.invokeLater(this::updateLogContent);
     }
 
+
     @Override
-    public void restore() throws NoSuchElementException {
-        WindowState ws = WindowStateManager.get().loadState("log_window");
-        setLocation(ws.getLocation());
-        setSize(ws.getSize());
-        setMinimumSize(ws.getSize());
-        setTitle(ws.getTitle());
-        try {
-            setIcon(ws.getIcon());
-        } catch (PropertyVetoException e) {
-            System.err.println(e.getMessage());
+    public void deformationState(WindowState windowState) {
+        if (windowState == null) {
+            System.err.printf("no saved entry for %s%n", getClass().getName());
+            setBounds(10,10,
+                    300, 650);
+        } else {
+            setLocation(windowState.getX(), windowState.getY());
+            setSize(windowState.getWidth(), windowState.getHeight());
+            setTitle(windowState.getTitle());
+            try {
+                setIcon(windowState.getIcon());
+            } catch (PropertyVetoException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 
     @Override
-    public void save() {
-        WindowState ws = new WindowState(
-                getSize(),
-                getLocation(),
+    public WindowState formationState() {
+        return new WindowState(
+                getWidth(),
+                getHeight(),
+                getX(),
+                getY(),
                 getTitle(),
-                isIcon()
-        );
-        WindowStateManager.get().saveState("log_window", ws);
+                isIcon());
     }
 }

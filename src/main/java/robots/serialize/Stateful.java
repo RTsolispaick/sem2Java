@@ -1,20 +1,20 @@
 package robots.serialize;
 
-import java.util.NoSuchElementException;
-
 /**
- * Интерфейс, представляющий объект, который может сохранять и восстанавливать свое состояние.
+ * Интерфейс представляет объект, который может быть сериализован и десериализован в {@link WindowState}.
  */
 public interface Stateful {
     /**
-     * Метод для восстановления состояния объекта.
+     * Используется для восстановления состояния объекта из переданной Map состояний окон.
      *
-     * @throws NoSuchElementException если не удается восстановить состояние из-за отсутствия необходимых данных
+     * @param windowState Cостояние окна, из которого необходимо восстановить состояние объекта, null - в случае отсутсвия сохранения
      */
-    void restore() throws NoSuchElementException;
+    void deformationState(WindowState windowState);
 
     /**
-     * Метод для сохранения текущего состояния объекта.
+     * Возвращает текущее состояние объекта в виде объекта WindowState.
+     *
+     * @return Объект WindowState, представляющий текущее состояние объекта.
      */
-    void save();
+    WindowState formationState();
 }

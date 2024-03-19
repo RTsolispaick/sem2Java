@@ -1,17 +1,14 @@
 package robots.gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.NoSuchElementException;
-
-import javax.swing.*;
-
 import robots.log.Logger;
-import robots.serialize.WindowStateManager;
 import robots.serialize.Stateful;
 import robots.serialize.WindowState;
+import robots.serialize.WindowStateManager;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Главное окно приложения
@@ -25,12 +22,6 @@ public class MainApplicationFrame extends JFrame implements Stateful {
     public MainApplicationFrame() {
         setContentPane(desktopPane);
 
-        try {
-            restore();
-        } catch (NoSuchElementException ignored) {
-            setVisualMainFrame();
-        }
-
         setJMenuBar(new PaneMenuBar(this));
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -43,18 +34,19 @@ public class MainApplicationFrame extends JFrame implements Stateful {
 
         addWindow(createGameWindow());
         addWindow(createLogWindow());
+
+        restoreStatesWindows();
     }
 
     /**
      * Устанавливает визуальные отношения окна (размер, название и станадартную тему)
      */
-    public void setVisualMainFrame() {
+    private void setVisualMainFrame() {
         int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(inset, inset,
                 screenSize.width - inset * 2,
                 screenSize.height - inset * 2);
-
         setTitle("Старающийся комарик");
     }
 
@@ -73,7 +65,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
                 options,
                 options[0]);
         if (userChoice == JOptionPane.YES_OPTION) {
-            saveStatesWindow();
+            saveStatesWindows();
             setDefaultCloseOperation(EXIT_ON_CLOSE);
         }
     }
@@ -83,10 +75,8 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      * @param frame объект внутреннего окна
      */
     private void addWindow(JInternalFrame frame) {
-        SwingUtilities.invokeLater(() -> {
-            desktopPane.add(frame);
-            frame.setVisible(true);
-        });
+        desktopPane.add(frame);
+        frame.setVisible(true);
     }
 
     /**
@@ -95,13 +85,6 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      */
     private LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        try {
-            logWindow.restore();
-        } catch (NoSuchElementException e) {
-            logWindow.setBounds(10,10,
-                    300, 650);
-            setMinimumSize(logWindow.getSize());
-        }
         Logger.debug("Протокол работает");
         return logWindow;
     }
@@ -112,13 +95,6 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      */
     private GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
-        try {
-            gameWindow.restore();
-        } catch (NoSuchElementException e) {
-            gameWindow.setBounds(320, 10,
-                    400, 400);
-            setMinimumSize(gameWindow.getSize());
-        }
         Logger.debug("Окно игры работает");
         return gameWindow;
     }
@@ -141,40 +117,35 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         }
     }
 
-    /**
-     * Сохраняет состояния окон.
-     * <p>
-     * Метод сначала сохраняет состояние главного окна, затем состояния всех внутренних окон
-     * , если они реализуют интерфейс {@link Stateful}.
-     * После чего метод выполняет сброс всех состояний в сериализуемое хранилище.
-     * </p>
-     */
-    private void saveStatesWindow() {
-        save();
+    private void restoreStatesWindows() {
+        new WindowStateManager().loadState(this, desktopPane.getAllFrames());
+    }
 
-        for (JInternalFrame c : desktopPane.getAllFrames()) {
-            if (c instanceof Stateful)
-                ((Stateful) c).save();
+    private void saveStatesWindows() {
+        new WindowStateManager().saveState(this, desktopPane.getAllFrames());
+    }
+
+
+    @Override
+    public void deformationState(WindowState windowState) {
+        if (windowState == null) {
+            System.err.printf("no saved entry for %s%n", getClass().getName());
+            setVisualMainFrame();
+        } else {
+            setLocation(windowState.getX(), windowState.getY());
+            setSize(windowState.getWidth(), windowState.getHeight());
+            setTitle(windowState.getTitle());
         }
-
-        WindowStateManager.get().flush();
     }
 
     @Override
-    public void restore() throws NoSuchElementException {
-        WindowState ws = WindowStateManager.get().loadState("main_window");
-        setLocation(ws.getLocation());
-        setSize(ws.getSize());
-        setTitle(ws.getTitle());
-    }
-
-    @Override
-    public void save() {
-        WindowState ws = new WindowState(
-                getSize(),
-                getLocation(),
+    public WindowState formationState() {
+        return new WindowState(
+                getWidth(),
+                getHeight(),
+                getX(),
+                getY(),
                 getTitle(),
                 false);
-        WindowStateManager.get().saveState("main_window", ws);
     }
 }
