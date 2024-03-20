@@ -6,11 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Класс WindowStateManager предоставляет функциональность для сериализации и десериализации состояний окон.
+ * Предоставляет функциональность для сериализации и десериализации состояний окон.
  */
 public class WindowStateManager {
     private final WindowIO windowIO = new WindowIO();
-    private Map<String, WindowState> windowStateMap = new HashMap<>();
 
     /**
      * Сохраняет состояние главного окна и внутренних окон.
@@ -19,6 +18,8 @@ public class WindowStateManager {
      * @param jInternalFrames  Массив внутренних окон JInternalFrame.
      */
     public void saveState(JFrame frame, JInternalFrame[] jInternalFrames) {
+        Map<String, WindowState> windowStateMap = new HashMap<>();
+
         if (frame instanceof Stateful)
             windowStateMap.put(frame.getClass().getName(),((Stateful) frame).formationState());
 
@@ -36,6 +37,7 @@ public class WindowStateManager {
      * @param jInternalFrames  Массив внутренних окон JInternalFrame.
      */
     public void loadState(JFrame frame, JInternalFrame[] jInternalFrames) {
+        Map<String, WindowState> windowStateMap = new HashMap<>();
         try {
             windowStateMap = windowIO.loadFromJson();
         } catch (FileNotFoundException e) {

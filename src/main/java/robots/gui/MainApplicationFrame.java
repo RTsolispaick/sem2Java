@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
  */
 public class MainApplicationFrame extends JFrame implements Stateful {
     private final JDesktopPane desktopPane = new JDesktopPane();
+    private final WindowStateManager windowStateManager = new WindowStateManager();
 
     /**
      * Конструктор для создания главного окна
@@ -117,14 +118,19 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         }
     }
 
+    /**
+     * Восстанавливает состояния окон приложения из сохраненных данных.
+     */
     private void restoreStatesWindows() {
-        new WindowStateManager().loadState(this, desktopPane.getAllFrames());
+        windowStateManager.loadState(this, desktopPane.getAllFrames());
     }
 
+    /**
+     * Сохраняет текущие состояния окон приложения.
+     */
     private void saveStatesWindows() {
-        new WindowStateManager().saveState(this, desktopPane.getAllFrames());
+        windowStateManager.saveState(this, desktopPane.getAllFrames());
     }
-
 
     @Override
     public void deformationState(WindowState windowState) {
