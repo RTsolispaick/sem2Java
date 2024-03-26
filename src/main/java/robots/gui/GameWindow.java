@@ -1,20 +1,25 @@
 package robots.gui;
 
-import java.awt.BorderLayout;
+import robots.serialize.Stateful;
 
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
-public class GameWindow extends JInternalFrame
-{
-    private final GameVisualizer m_visualizer;
-    public GameWindow() 
-    {
+public class GameWindow extends JInternalFrame implements Stateful {
+
+    public GameWindow() {
         super("Игровое поле", true, true, true, true);
-        m_visualizer = new GameVisualizer();
+        GameVisualizer m_visualizer = new GameVisualizer();
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
+        setBounds(320, 10,
+                400, 400);
+    }
+
+    @Override
+    public String getIDFrame() {
+        return "GameWindow";
     }
 }

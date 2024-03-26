@@ -1,22 +1,19 @@
 package robots.gui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.TextArea;
-
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-
 import robots.log.LogChangeListener;
 import robots.log.LogEntry;
 import robots.log.LogWindowSource;
+import robots.serialize.Stateful;
 
-public class LogWindow extends JInternalFrame implements LogChangeListener
+import javax.swing.*;
+import java.awt.*;
+
+public class LogWindow extends JInternalFrame implements LogChangeListener, Stateful
 {
-    private LogWindowSource m_logSource;
-    private TextArea m_logContent;
+    private final LogWindowSource m_logSource;
+    private final TextArea m_logContent;
 
-    public LogWindow(LogWindowSource logSource) 
+    public LogWindow(LogWindowSource logSource)
     {
         super("Протокол работы", true, true, true, true);
         m_logSource = logSource;
@@ -29,6 +26,8 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
         getContentPane().add(panel);
         pack();
         updateLogContent();
+        setBounds(10,10,
+                300, 650);
     }
 
     private void updateLogContent()
@@ -46,5 +45,11 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
     public void onLogChanged()
     {
         EventQueue.invokeLater(this::updateLogContent);
+    }
+
+
+    @Override
+    public String getIDFrame() {
+        return "LogWindow";
     }
 }
