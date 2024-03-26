@@ -12,7 +12,6 @@ public class WindowState {
     private final int height;
     private final int x;
     private final int y;
-    private final String title;
     private final Boolean isIcon;
 
     /**
@@ -22,15 +21,13 @@ public class WindowState {
      * @param height  Высота окна.
      * @param x       Координата X окна.
      * @param y       Координата Y окна.
-     * @param title   Заголовок окна.
      * @param isIcon  Показывает, является ли окно свернутым (иконизированным).
      */
-    public WindowState(int width, int height, int x, int y, String title, Boolean isIcon) {
+    public WindowState(int width, int height, int x, int y, Boolean isIcon) {
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
-        this.title = title;
         this.isIcon = isIcon;
     }
 
@@ -70,14 +67,6 @@ public class WindowState {
         return y;
     }
 
-    /**
-     * Возвращает заголовок окна.
-     *
-     * @return Заголовок окна.
-     */
-    public String getTitle() {
-        return title;
-    }
 
     /**
      * Показывает, является ли окно свернутым (иконизированным).
@@ -102,7 +91,6 @@ public class WindowState {
                 height == that.height             &&
                 x == that.x                       &&
                 y == that.y                       &&
-                Objects.equals(title, that.title) &&
                 Objects.equals(isIcon, that.isIcon);
     }
 
@@ -113,6 +101,6 @@ public class WindowState {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(width, height, x, y, title, isIcon);
+        return Objects.hash(width, height, x, y, isIcon);
     }
 }

@@ -2,13 +2,14 @@ package robots.gui;
 
 import robots.log.Logger;
 import robots.serialize.Stateful;
-import robots.serialize.WindowState;
 import robots.serialize.WindowStateManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Главное окно приложения
@@ -22,6 +23,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      */
     public MainApplicationFrame() {
         setContentPane(desktopPane);
+        setVisualMainFrame();
 
         setJMenuBar(new PaneMenuBar(this));
 
@@ -122,36 +124,33 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      * Восстанавливает состояния окон приложения из сохраненных данных.
      */
     private void restoreStatesWindows() {
-        windowStateManager.loadState(this, desktopPane.getAllFrames());
+        List<Stateful> statefuls = new ArrayList<>();
+        statefuls.add(this);
+
+        for (JInternalFrame jInternalFrame : desktopPane.getAllFrames())
+            if (jInternalFrame instanceof Stateful statefulFrame)
+                statefuls.add(statefulFrame);
+
+        windowStateManager.loadState(statefuls);
     }
 
     /**
      * Сохраняет текущие состояния окон приложения.
      */
     private void saveStatesWindows() {
-        windowStateManager.saveState(this, desktopPane.getAllFrames());
+        List<Stateful> statefuls = new ArrayList<>();
+        statefuls.add(this);
+
+        for (JInternalFrame jInternalFrame : desktopPane.getAllFrames())
+            if (jInternalFrame instanceof Stateful statefulFrame)
+                statefuls.add(statefulFrame);
+
+        windowStateManager.saveState(statefuls);
     }
 
-    @Override
-    public void deformationState(WindowState windowState) {
-        if (windowState == null) {
-            System.err.printf("no saved entry for %s%n", getClass().getName());
-            setVisualMainFrame();
-        } else {
-            setLocation(windowState.getX(), windowState.getY());
-            setSize(windowState.getWidth(), windowState.getHeight());
-            setTitle(windowState.getTitle());
-        }
-    }
 
     @Override
-    public WindowState formationState() {
-        return new WindowState(
-                getWidth(),
-                getHeight(),
-                getX(),
-                getY(),
-                getTitle(),
-                false);
+    public String getIDFrame() {
+        return "MainApplicationFrame";
     }
 }

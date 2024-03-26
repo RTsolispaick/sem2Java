@@ -19,7 +19,7 @@ public class WindowIO {
     /**
      * Конструктор класса WindowIO.
      * Создает файл конфигурации, если он не существует, иначе использует существующий.
-     * Если создать необходимые директории не удалось, выводит сообщение об ошибке в консоль и завершает выполнение программы.
+     * Если создать необходимые директории не удалось, выводит сообщение об ошибке в консоль.
      */
     public WindowIO() {
         String confFilePath = System.getProperty("user.home") +
@@ -32,7 +32,6 @@ public class WindowIO {
             FileUtils.forceMkdirParent(confFile);
         } catch (IOException e) {
             System.err.println("Не удалось создать структуру приложения");
-            System.exit(1);
         }
     }
 
