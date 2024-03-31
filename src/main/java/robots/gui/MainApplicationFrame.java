@@ -124,20 +124,21 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      * Восстанавливает состояния окон приложения из сохраненных данных.
      */
     private void restoreStatesWindows() {
-        List<Stateful> statefuls = new ArrayList<>();
-        statefuls.add(this);
-
-        for (JInternalFrame jInternalFrame : desktopPane.getAllFrames())
-            if (jInternalFrame instanceof Stateful statefulFrame)
-                statefuls.add(statefulFrame);
-
-        windowStateManager.loadState(statefuls);
+        windowStateManager.loadState(getListStateful());
     }
 
     /**
      * Сохраняет текущие состояния окон приложения.
      */
     private void saveStatesWindows() {
+        windowStateManager.saveState(getListStateful());
+    }
+
+    /**
+     * Создание списка, который содержит окна, реализующие интерфейс Stateful
+     * @return список, содержащий окна с интерфейсом Stateful
+     */
+    private List<Stateful> getListStateful() {
         List<Stateful> statefuls = new ArrayList<>();
         statefuls.add(this);
 
@@ -145,7 +146,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
             if (jInternalFrame instanceof Stateful statefulFrame)
                 statefuls.add(statefulFrame);
 
-        windowStateManager.saveState(statefuls);
+        return statefuls;
     }
 
 
