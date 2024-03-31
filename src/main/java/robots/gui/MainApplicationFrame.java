@@ -1,26 +1,30 @@
 package robots.gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import robots.log.Logger;
+import robots.serialize.Stateful;
+import robots.serialize.WindowStateManager;
 
 import javax.swing.*;
-
-import robots.log.Logger;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Главное окно приложения
  */
-public class MainApplicationFrame extends JFrame
-{
+public class MainApplicationFrame extends JFrame implements Stateful {
     private final JDesktopPane desktopPane = new JDesktopPane();
+    private final WindowStateManager windowStateManager = new WindowStateManager();
 
     /**
      * Конструктор для создания главного окна
      */
     public MainApplicationFrame() {
         setContentPane(desktopPane);
+        setVisualMainFrame();
+
         setJMenuBar(new PaneMenuBar(this));
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -31,24 +35,22 @@ public class MainApplicationFrame extends JFrame
             }
         });
 
-        addWindow(createLogWindow());
         addWindow(createGameWindow());
+        addWindow(createLogWindow());
 
-        pack();
+        restoreStatesWindows();
     }
 
     /**
      * Устанавливает визуальные отношения окна (размер, название и станадартную тему)
      */
-    public void setVisualMainFrame() {
+    private void setVisualMainFrame() {
         int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(inset, inset,
                 screenSize.width - inset * 2,
                 screenSize.height - inset * 2);
-
         setTitle("Старающийся комарик");
-        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
 
     /**
@@ -65,8 +67,10 @@ public class MainApplicationFrame extends JFrame
                 null,
                 options,
                 options[0]);
-        if (userChoice == JOptionPane.YES_OPTION)
+        if (userChoice == JOptionPane.YES_OPTION) {
+            saveStatesWindows();
             setDefaultCloseOperation(EXIT_ON_CLOSE);
+        }
     }
 
     /**
@@ -84,9 +88,6 @@ public class MainApplicationFrame extends JFrame
      */
     private LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        logWindow.setBounds(10,10,
-                300, 650);
-        setMinimumSize(logWindow.getSize());
         Logger.debug("Протокол работает");
         return logWindow;
     }
@@ -97,9 +98,6 @@ public class MainApplicationFrame extends JFrame
      */
     private GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
-        gameWindow.setBounds(320, 10,
-                400, 400);
-        setMinimumSize(gameWindow.getSize());
         Logger.debug("Окно игры работает");
         return gameWindow;
     }
@@ -118,7 +116,42 @@ public class MainApplicationFrame extends JFrame
         catch (ClassNotFoundException | InstantiationException
                | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            Logger.debug(e.getMessage());
+            Logger.debug("Ошибка в setLookAndFeel");
         }
+    }
+
+    /**
+     * Восстанавливает состояния окон приложения из сохраненных данных.
+     */
+    private void restoreStatesWindows() {
+        windowStateManager.loadState(getListStateful());
+    }
+
+    /**
+     * Сохраняет текущие состояния окон приложения.
+     */
+    private void saveStatesWindows() {
+        windowStateManager.saveState(getListStateful());
+    }
+
+    /**
+     * Создание списка, который содержит окна, реализующие интерфейс Stateful
+     * @return список, содержащий окна с интерфейсом Stateful
+     */
+    private List<Stateful> getListStateful() {
+        List<Stateful> statefuls = new ArrayList<>();
+        statefuls.add(this);
+
+        for (JInternalFrame jInternalFrame : desktopPane.getAllFrames())
+            if (jInternalFrame instanceof Stateful statefulFrame)
+                statefuls.add(statefulFrame);
+
+        return statefuls;
+    }
+
+
+    @Override
+    public String getIDFrame() {
+        return "MainApplicationFrame";
     }
 }
