@@ -27,7 +27,7 @@ public class WindowStateManager {
             else if (frame instanceof JInternalFrame jInternalFrame)
                 windowStateMap.put(frame.getIDFrame(), getJInternalFrameState(jInternalFrame));
             else
-                System.err.printf("Нет обработки случая в saveState для %s%n", frame.getClass().getName());
+                System.err.printf("Нет обработки случая в saveState для %s\n", frame.getClass().getName());
         }
 
         windowIO.saveToJson(windowStateMap);
@@ -82,7 +82,7 @@ public class WindowStateManager {
             else if (frame instanceof JInternalFrame jInternalFrame)
                 setJInternalFrameState(jInternalFrame, windowStateMap.get(frame.getIDFrame()));
             else
-                System.err.printf("Нет обработки случая в loadState для %s%n", frame.getClass().getName());
+                System.err.printf("Нет обработки случая в loadState для %s\n", frame.getClass().getName());
         }
     }
 
