@@ -1,5 +1,6 @@
 package robots.gui;
 
+import robots.controller.GameController;
 import robots.log.Logger;
 import robots.serialize.Stateful;
 import robots.serialize.WindowStateManager;
@@ -8,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +37,13 @@ public class MainApplicationFrame extends JFrame implements Stateful {
             }
         });
 
-        addWindow(createGameWindow());
+        PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+        addWindow(createGameWindow(propertyChangeSupport));
+        addWindow(createWindowWithCoordinates(propertyChangeSupport));
         addWindow(createLogWindow());
-
         restoreStatesWindows();
+
+        new GameController(propertyChangeSupport);
     }
 
     /**
@@ -96,10 +101,16 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      * Создаёт внутреннее окно класса {@link GameWindow} и настраивает его размер
      * @return готовый объект окна {@link GameWindow}
      */
-    private GameWindow createGameWindow() {
-        GameWindow gameWindow = new GameWindow();
+    private GameWindow createGameWindow(PropertyChangeSupport pcs) {
+        GameWindow gameWindow = new GameWindow(pcs);
         Logger.debug("Окно игры работает");
         return gameWindow;
+    }
+
+    private WindowWithCoordinates createWindowWithCoordinates(PropertyChangeSupport pcs) {
+        WindowWithCoordinates windowWithCoordinates = new WindowWithCoordinates(pcs);
+        Logger.debug("Окно с координатами работает");
+        return windowWithCoordinates;
     }
 
     /**
