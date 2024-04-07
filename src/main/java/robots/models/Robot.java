@@ -1,11 +1,12 @@
 package robots.models;
 
-import java.awt.Point;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.*;
 import java.beans.PropertyChangeSupport;
 
-public class Robot implements PropertyChangeListener {
+/**
+ * Класс Robot представляет модель робота в игре.
+ */
+public class Robot {
     private final PropertyChangeSupport propertyChangeSupport;
 
     // Позиция робота
@@ -23,11 +24,18 @@ public class Robot implements PropertyChangeListener {
     private int targetX = 150;
     private int targetY = 100;
 
-    public Robot(PropertyChangeSupport pcs) {
-        this.propertyChangeSupport = pcs;
-        pcs.addPropertyChangeListener(this);
+    /**
+     * Конструктор класса Robot.
+     *
+     * @param propertyChangeSupport объект PropertyChangeSupport для поддержки событий изменения свойств
+     */
+    public Robot(PropertyChangeSupport propertyChangeSupport) {
+        this.propertyChangeSupport = propertyChangeSupport;
     }
 
+    /**
+     * Обновляет состояние робота.
+     */
     public synchronized void update() {
         double distanceToTarget = calculateDistance(targetX - posX, targetY - posY);
 
@@ -37,15 +45,44 @@ public class Robot implements PropertyChangeListener {
         determineRotationAngle(angleToTarget);
 
         moveRobot();
+
         notifyListeners();
     }
 
+    /**
+     * Устанавливает целевую позицию робота.
+     *
+     * @param targetPosition точка с координатами целевой позиции
+     */
+    public void setTargetPosition(Point targetPosition) {
+        targetX = targetPosition.x;
+        targetY = targetPosition.y;
+        rotationDirectionSet = false;
+    }
+
+    /**
+     * Получает текущее состояние робота.
+     *
+     * @return объект RobotState, представляющий текущее состояние робота
+     */
+    public RobotState getRobotState() {
+        return new RobotState(posX, posY, direction, targetX, targetY);
+    }
+
+    /**
+     * Выполняет перемещение робота в соответствии с текущим направлением и углом поворота.
+     */
     private void moveRobot() {
         posX += SPEED * Math.cos(direction + rotationAngle);
         posY += SPEED * Math.sin(direction + rotationAngle);
         direction = normalizeRadians(direction + rotationAngle);
     }
 
+    /**
+     * Определяет угол поворота робота на основе угла до цели.
+     *
+     * @param angleToTarget угол до цели
+     */
     private void determineRotationAngle(double angleToTarget) {
         double angleDifference = normalizeRadians(angleToTarget - direction);
 
@@ -57,6 +94,11 @@ public class Robot implements PropertyChangeListener {
         }
     }
 
+    /**
+     * Устанавливает угол поворота робота в зависимости от направления поворота.
+     *
+     * @param rotationDirection направление поворота робота
+     */
     private void setRotationAngle(double rotationDirection) {
         double R = (SPEED / 2) / Math.sin(ANGLE / 2);
         double xRComponent = posX + R * Math.cos(direction + rotationDirection * (ANGLE + Math.PI) / 2);
@@ -69,17 +111,23 @@ public class Robot implements PropertyChangeListener {
         }
     }
 
-    public void setTargetPosition(Point targetPosition) {
-        targetX = targetPosition.x;
-        targetY = targetPosition.y;
-        rotationDirectionSet = false;
-    }
-
+    /**
+     * Вычисляет расстояние между двумя точками.
+     *
+     * @param diffX разница по оси X между точками
+     * @param diffY разница по оси Y между точками
+     * @return расстояние между точками
+     */
     private double calculateDistance(double diffX, double diffY) {
         return Math.sqrt(diffX * diffX + diffY * diffY);
     }
 
-    // Приведение угла к диапазону от -pi до pi
+    /**
+     * Нормализует угол в радианах, приводя его к диапазону от -pi до pi.
+     *
+     * @param angle угол для нормализации
+     * @return нормализованный угол
+     */
     private double normalizeRadians(double angle) {
         if (angle <= -Math.PI) {
             angle += 2 * Math.PI;
@@ -90,19 +138,10 @@ public class Robot implements PropertyChangeListener {
         return angle;
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("target_update")) {
-            Point point = (Point) evt.getNewValue();
-            setTargetPosition(point);
-        }
-    }
-
     /**
-     * Уведомляет слушателей об изменении состояния модели.
+     * Уведомляет слушателей об изменении состояния модели робота.
      */
     private void notifyListeners() {
-        propertyChangeSupport.firePropertyChange("robot_update", null,
-                new RobotState(posX, posY, direction, targetX, targetY));
+        propertyChangeSupport.firePropertyChange("robot_update", null, getRobotState());
     }
 }

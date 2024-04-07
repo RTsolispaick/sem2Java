@@ -10,21 +10,22 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.DecimalFormat;
 
+/**
+ * Класс WindowWithCoordinates представляет внутреннее окно, отображающее координаты робота.
+ */
 public class WindowWithCoordinates extends JInternalFrame implements Stateful, PropertyChangeListener {
-    JLabel xCord;
-    JLabel yCord;
-
-    /**
-     * Формат вывода координат робота
-     */
+    private final JLabel xCord;
+    private final JLabel yCord;
     private final DecimalFormat df = new DecimalFormat("#.##");
 
     /**
-     * Создает окно, подписывается на изменения переданной модели.
+     * Конструктор класса WindowWithCoordinates.
+     *
+     * @param propertyChangeSupport PropertyChangeSupport для прослушивания событий изменения свойств.
      */
-    public WindowWithCoordinates(PropertyChangeSupport pcs) {
-        super("Internal Frame", true, true, true, true);
-        pcs.addPropertyChangeListener(this);
+    public WindowWithCoordinates(PropertyChangeSupport propertyChangeSupport) {
+        super("Внутреннее окно", true, true, true, true);
+        propertyChangeSupport.addPropertyChangeListener(this);
 
         xCord = new JLabel("x");
         yCord = new JLabel("y");
@@ -35,24 +36,26 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
 
         setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
-
-        setBounds(730, 10,
-                150, 100);
-    }
-
-    @Override
-    public String getIDFrame() {
-        return "robot_location";
+        pack();
     }
 
     /**
-     * Обновляет текстовые поля gui новыми координатами робота
+     * Обновляет отображаемые координаты на основе состояния робота.
+     *
+     * @param x Координата x робота.
+     * @param y Координата y робота.
      */
     private void updateCoords(double x, double y) {
         xCord.setText("x: " + df.format(x));
         yCord.setText("y: " + df.format(y));
     }
 
+    /**
+     * Прослушивает события изменения состояния робота.
+     * Обновляет отображаемые координаты при изменении состояния робота.
+     *
+     * @param evt Событие PropertyChangeEvent, представляющее изменение свойств.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("robot_update")) {
@@ -60,4 +63,10 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
             updateCoords(gameState.getPosX(), gameState.getPosY());
         }
     }
+
+    @Override
+    public String getIDFrame() {
+        return "robot_location";
+    }
 }
+

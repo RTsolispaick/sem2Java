@@ -1,6 +1,5 @@
 package robots.gui;
 
-import robots.controller.GameController;
 import robots.log.Logger;
 import robots.serialize.Stateful;
 import robots.serialize.WindowStateManager;
@@ -42,8 +41,6 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         addWindow(createWindowWithCoordinates(propertyChangeSupport));
         addWindow(createLogWindow());
         restoreStatesWindows();
-
-        new GameController(propertyChangeSupport);
     }
 
     /**
@@ -93,6 +90,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      */
     private LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
+        logWindow.setLocation(10,10);
         Logger.debug("Протокол работает");
         return logWindow;
     }
@@ -101,14 +99,21 @@ public class MainApplicationFrame extends JFrame implements Stateful {
      * Создаёт внутреннее окно класса {@link GameWindow} и настраивает его размер
      * @return готовый объект окна {@link GameWindow}
      */
-    private GameWindow createGameWindow(PropertyChangeSupport pcs) {
-        GameWindow gameWindow = new GameWindow(pcs);
+    private GameWindow createGameWindow(PropertyChangeSupport propertyChangeSupport) {
+        GameWindow gameWindow = new GameWindow(propertyChangeSupport);
+        gameWindow.setBounds(230, 10,
+                530, 530);
         Logger.debug("Окно игры работает");
         return gameWindow;
     }
 
-    private WindowWithCoordinates createWindowWithCoordinates(PropertyChangeSupport pcs) {
-        WindowWithCoordinates windowWithCoordinates = new WindowWithCoordinates(pcs);
+    /**
+     * Создаёт внутреннее окно класса {@link WindowWithCoordinates} и настраивает его размер
+     * @return готовый объект окна {@link WindowWithCoordinates}
+     */
+    private WindowWithCoordinates createWindowWithCoordinates(PropertyChangeSupport propertyChangeSupport) {
+        WindowWithCoordinates windowWithCoordinates = new WindowWithCoordinates(propertyChangeSupport);
+        windowWithCoordinates.setLocation(770, 10);
         Logger.debug("Окно с координатами работает");
         return windowWithCoordinates;
     }

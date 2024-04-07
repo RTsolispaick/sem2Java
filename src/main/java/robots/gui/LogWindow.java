@@ -26,8 +26,6 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
         getContentPane().add(panel);
         pack();
         updateLogContent();
-        setBounds(10,10,
-                300, 650);
     }
 
     private void updateLogContent()
