@@ -4,9 +4,9 @@ import java.awt.*;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Класс Robot представляет модель робота в игре.
+ * Класс RobotModel представляет модель робота в игре.
  */
-public class Robot {
+public class RobotModel {
     private final PropertyChangeSupport propertyChangeSupport;
 
     // Позиция робота
@@ -29,7 +29,7 @@ public class Robot {
      *
      * @param propertyChangeSupport объект PropertyChangeSupport для поддержки событий изменения свойств
      */
-    public Robot(PropertyChangeSupport propertyChangeSupport) {
+    public RobotModel(PropertyChangeSupport propertyChangeSupport) {
         this.propertyChangeSupport = propertyChangeSupport;
     }
 
@@ -58,15 +58,6 @@ public class Robot {
         targetX = targetPosition.x;
         targetY = targetPosition.y;
         rotationDirectionSet = false;
-    }
-
-    /**
-     * Получает текущее состояние робота.
-     *
-     * @return объект RobotState, представляющий текущее состояние робота
-     */
-    public RobotState getRobotState() {
-        return new RobotState(posX, posY, direction, targetX, targetY);
     }
 
     /**
@@ -131,8 +122,7 @@ public class Robot {
     private double normalizeRadians(double angle) {
         if (angle <= -Math.PI) {
             angle += 2 * Math.PI;
-        }
-        else if (angle >= Math.PI) {
+        } else if (angle >= Math.PI) {
             angle -= 2 * Math.PI;
         }
         return angle;
@@ -142,6 +132,26 @@ public class Robot {
      * Уведомляет слушателей об изменении состояния модели робота.
      */
     private void notifyListeners() {
-        propertyChangeSupport.firePropertyChange("robot_update", null, getRobotState());
+        propertyChangeSupport.firePropertyChange("robot_update", null, this);
+    }
+
+    public double getPosX() {
+        return posX;
+    }
+
+    public double getPosY() {
+        return posY;
+    }
+
+    public double getDirection() {
+        return direction;
+    }
+
+    public int getTargetX() {
+        return targetX;
+    }
+
+    public int getTargetY() {
+        return targetY;
     }
 }

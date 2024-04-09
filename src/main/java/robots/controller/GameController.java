@@ -1,20 +1,19 @@
 package robots.controller;
 
 import robots.gui.GameVisualizer;
-import robots.models.Robot;
+import robots.models.RobotModel;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeSupport;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Класс, представляющий контроллер игры.
  */
-public class GameController implements ActionListener {
-    private final Robot robot;
+public class GameController {
+    private final RobotModel robotModel;
     private final GameVisualizer gameVisualizer;
 
     /**
@@ -23,27 +22,29 @@ public class GameController implements ActionListener {
      * @param propertyChangeSupport объект PropertyChangeSupport для поддержки событий изменения свойств
      */
     public GameController(PropertyChangeSupport propertyChangeSupport) {
-        this.robot = new Robot(propertyChangeSupport);
-        this.gameVisualizer = new GameVisualizer();
+        robotModel = new RobotModel(propertyChangeSupport);
+        gameVisualizer = new GameVisualizer(propertyChangeSupport);
 
         gameVisualizer.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                robot.setTargetPosition(e.getPoint());
+                robotModel.setTargetPosition(e.getPoint());
             }
         });
     }
 
     /**
-     * Обработчик действия, вызываемый таймером.
-     * Обновляет состояние робота и визуализатора игры.
-     *
-     * @param e объект ActionEvent, представляющий событие
+     * Запускает игровой цикл.
+     * Создает и запускает таймер для обновления состояния игры.
      */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        robot.update();
-        gameVisualizer.update(robot.getRobotState());
+    public void start() {
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                robotModel.update();
+            }
+        }, 0, 10);
     }
 
     /**
@@ -53,14 +54,5 @@ public class GameController implements ActionListener {
      */
     public GameVisualizer getGameVisualizer() {
         return gameVisualizer;
-    }
-
-    /**
-     * Запускает игровой цикл.
-     * Создает и запускает таймер для обновления состояния игры.
-     */
-    public void start() {
-        Timer timer = new Timer(10, this);
-        timer.start();
     }
 }

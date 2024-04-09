@@ -1,6 +1,6 @@
 package robots.gui;
 
-import robots.models.RobotState;
+import robots.models.RobotModel;
 import robots.serialize.Stateful;
 
 import javax.swing.*;
@@ -20,8 +20,6 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
 
     /**
      * Конструктор класса WindowWithCoordinates.
-     *
-     * @param propertyChangeSupport PropertyChangeSupport для прослушивания событий изменения свойств.
      */
     public WindowWithCoordinates(PropertyChangeSupport propertyChangeSupport) {
         super("Внутреннее окно", true, true, true, true);
@@ -50,17 +48,11 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
         yCord.setText("y: " + df.format(y));
     }
 
-    /**
-     * Прослушивает события изменения состояния робота.
-     * Обновляет отображаемые координаты при изменении состояния робота.
-     *
-     * @param evt Событие PropertyChangeEvent, представляющее изменение свойств.
-     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("robot_update")) {
-            RobotState gameState = (RobotState) evt.getNewValue();
-            updateCoords(gameState.getPosX(), gameState.getPosY());
+            RobotModel robotModel = (RobotModel) evt.getNewValue();
+            updateCoords(robotModel.getPosX(), robotModel.getPosY());
         }
     }
 

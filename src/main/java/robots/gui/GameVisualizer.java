@@ -1,14 +1,17 @@
 package robots.gui;
 
-import robots.models.RobotState;
+import robots.models.RobotModel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 /**
  * Класс GameVisualizer представляет собой панель для визуализации состояния робота и его цели.
  */
-public class GameVisualizer extends JPanel {
+public class GameVisualizer extends JPanel implements PropertyChangeListener {
     private int posX;
     private int posY;
     private double direction;
@@ -17,9 +20,13 @@ public class GameVisualizer extends JPanel {
 
     /**
      * Создает новый объект GameVisualizer.
-     * Устанавливает параметры двойной буферизации для улучшения производительности отрисовки.
+     * Устанавливает параметры двойной буферизации для улучшения производительности отрисовки и
+     * подписывается на события изменения состояния робота через объект PropertyChangeSupport.
+     *
+     * @param propertyChangeSupport объект PropertyChangeSupport для подписки на события изменения состояния робота
      */
-    public GameVisualizer() {
+    public GameVisualizer(PropertyChangeSupport propertyChangeSupport) {
+        propertyChangeSupport.addPropertyChangeListener(this);
         setDoubleBuffered(true);
     }
 
@@ -80,29 +87,52 @@ public class GameVisualizer extends JPanel {
         g.drawOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
 
+    /**
+     * Округляет переданное значение до ближайшего целого числа.
+     *
+     * @param value значение для округления
+     * @return ближайшее целое число к переданному значению
+     */
     private int round(double value) {
         return (int) (value + 0.5);
     }
 
+    /**
+     * Выполняет перерисовку панели, используя механизм событий AWT.
+     * Этот метод вызывает repaint() события в потоке обработки событий AWT, чтобы обновить отображение панели.
+     */
     private void onRedrawEvent() {
         EventQueue.invokeLater(this::repaint);
     }
 
-    private void updateFields(RobotState robotState) {
-        posX = round(robotState.getPosX());
-        posY = round(robotState.getPosY());
-        direction = robotState.getDirection();
-        targetX = robotState.getTargetX();
-        targetY = robotState.getTargetY();
+    /**
+     * Обновляет поля объекта GameVisualizer с новыми значениями позиции робота, направления и координат цели.
+     * Координаты позиции и цели округляются до ближайшего целого числа.
+     *
+     * @param posX     новая координата X позиции робота
+     * @param posY     новая координата Y позиции робота
+     * @param direction новое направление робота в радианах
+     * @param targetX  новая координата X цели
+     * @param targetY  новая координата Y цели
+     */
+    private void updateFields(double posX, double posY, double direction, int targetX, int targetY) {
+        this.posX = round(posX);
+        this.posY = round(posY);
+        this.direction = direction;
+        this.targetX = targetX;
+        this.targetY = targetY;
     }
 
-    /**
-     * Обновляет состояние визуализатора на основе состояния робота.
-     *
-     * @param robotState объект RobotState, представляющий текущее состояние робота
-     */
-    public void update(RobotState robotState) {
-        updateFields(robotState);
-        onRedrawEvent();
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("robot_update")) {
+            RobotModel robotModel = (RobotModel) evt.getNewValue();
+            updateFields(robotModel.getPosX(),
+                    robotModel.getPosY(),
+                    robotModel.getDirection(),
+                    robotModel.getTargetX(),
+                    robotModel.getTargetY());
+            onRedrawEvent();
+        }
     }
 }
