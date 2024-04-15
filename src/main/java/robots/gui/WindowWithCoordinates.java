@@ -1,5 +1,6 @@
 package robots.gui;
 
+import robots.log.Logger;
 import robots.models.RobotModel;
 import robots.serialize.Stateful;
 
@@ -35,24 +36,26 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
         setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
         pack();
+
+        setLocation(770, 10);
+        Logger.debug("Окно с координатами работает");
     }
 
     /**
      * Обновляет отображаемые координаты на основе состояния робота.
      *
-     * @param x Координата x робота.
-     * @param y Координата y робота.
+     * @param robotModel модель робота
      */
-    private void updateCoords(double x, double y) {
-        xCord.setText("x: " + df.format(x));
-        yCord.setText("y: " + df.format(y));
+    private void updateCoords(RobotModel robotModel) {
+        xCord.setText("x: " + df.format(robotModel.getPosX()));
+        yCord.setText("y: " + df.format(robotModel.getPosY()));
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("robot_update")) {
             RobotModel robotModel = (RobotModel) evt.getNewValue();
-            updateCoords(robotModel.getPosX(), robotModel.getPosY());
+            updateCoords(robotModel);
         }
     }
 

@@ -12,11 +12,7 @@ import java.beans.PropertyChangeSupport;
  * Класс GameVisualizer представляет собой панель для визуализации состояния робота и его цели.
  */
 public class GameVisualizer extends JPanel implements PropertyChangeListener {
-    private int posX;
-    private int posY;
-    private double direction;
-    private int targetX;
-    private int targetY;
+    private RobotModel robotModel;
 
     /**
      * Создает новый объект GameVisualizer.
@@ -40,8 +36,13 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        drawRobot(g2d, posX, posY, direction);
-        drawTarget(g2d, targetX, targetY);
+        drawRobot(g2d,
+                round(robotModel.getPosX()),
+                round(robotModel.getPosY()),
+                robotModel.getDirection());
+        drawTarget(g2d,
+                robotModel.getTargetX(),
+                robotModel.getTargetY());
     }
 
     /**
@@ -105,33 +106,10 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener {
         EventQueue.invokeLater(this::repaint);
     }
 
-    /**
-     * Обновляет поля объекта GameVisualizer с новыми значениями позиции робота, направления и координат цели.
-     * Координаты позиции и цели округляются до ближайшего целого числа.
-     *
-     * @param posX     новая координата X позиции робота
-     * @param posY     новая координата Y позиции робота
-     * @param direction новое направление робота в радианах
-     * @param targetX  новая координата X цели
-     * @param targetY  новая координата Y цели
-     */
-    private void updateFields(double posX, double posY, double direction, int targetX, int targetY) {
-        this.posX = round(posX);
-        this.posY = round(posY);
-        this.direction = direction;
-        this.targetX = targetX;
-        this.targetY = targetY;
-    }
-
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("robot_update")) {
-            RobotModel robotModel = (RobotModel) evt.getNewValue();
-            updateFields(robotModel.getPosX(),
-                    robotModel.getPosY(),
-                    robotModel.getDirection(),
-                    robotModel.getTargetX(),
-                    robotModel.getTargetY());
+            this.robotModel = (RobotModel) evt.getNewValue();
             onRedrawEvent();
         }
     }

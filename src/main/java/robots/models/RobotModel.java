@@ -36,7 +36,7 @@ public class RobotModel {
     /**
      * Обновляет состояние робота.
      */
-    public synchronized void update() {
+    public void update() {
         double distanceToTarget = calculateDistance(targetX - posX, targetY - posY);
 
         if (distanceToTarget < 0.5) return;

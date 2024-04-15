@@ -5,7 +5,6 @@ import robots.models.RobotModel;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeSupport;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,16 +13,12 @@ import java.util.TimerTask;
  */
 public class GameController {
     private final RobotModel robotModel;
-    private final GameVisualizer gameVisualizer;
 
     /**
      * Конструктор класса GameController.
-     *
-     * @param propertyChangeSupport объект PropertyChangeSupport для поддержки событий изменения свойств
      */
-    public GameController(PropertyChangeSupport propertyChangeSupport) {
-        robotModel = new RobotModel(propertyChangeSupport);
-        gameVisualizer = new GameVisualizer(propertyChangeSupport);
+    public GameController(RobotModel robotModel, GameVisualizer gameVisualizer) {
+        this.robotModel = robotModel;
 
         gameVisualizer.addMouseListener(new MouseAdapter() {
             @Override
@@ -45,14 +40,5 @@ public class GameController {
                 robotModel.update();
             }
         }, 0, 10);
-    }
-
-    /**
-     * Получает объект GameVisualizer, представляющий визуализацию игры.
-     *
-     * @return объект GameVisualizer
-     */
-    public GameVisualizer getGameVisualizer() {
-        return gameVisualizer;
     }
 }

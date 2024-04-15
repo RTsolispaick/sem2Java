@@ -1,6 +1,8 @@
 package robots.gui;
 
 import robots.controller.GameController;
+import robots.log.Logger;
+import robots.models.RobotModel;
 import robots.serialize.Stateful;
 
 import javax.swing.*;
@@ -19,13 +21,19 @@ public class GameWindow extends JInternalFrame implements Stateful {
     public GameWindow(PropertyChangeSupport propertyChangeSupport) {
         super("Игровое поле", true, true, true, true);
 
-        GameController gameController = new GameController(propertyChangeSupport);
+        RobotModel robotModel = new RobotModel(propertyChangeSupport);
+        GameVisualizer gameVisualizer = new GameVisualizer(propertyChangeSupport);
+        GameController gameController = new GameController(robotModel, gameVisualizer);
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(gameController.getGameVisualizer(), BorderLayout.CENTER);
+        panel.add(gameVisualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
 
         gameController.start();
+
+        setBounds(230, 10,
+                530, 530);
+        Logger.debug("Окно игры работает");
     }
 
     @Override
