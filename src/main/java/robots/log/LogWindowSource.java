@@ -131,8 +131,8 @@ public class LogWindowSource
      *
      * @return итератор по сообщениям лога
      */
-    public Iterator<LogEntry> all()
+    public Iterable<LogEntry> all()
     {
-        return range(0, m_messages.size());
+        return m_messages;
     }
 }

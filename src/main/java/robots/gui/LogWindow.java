@@ -8,7 +8,6 @@ import robots.serialize.Stateful;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Iterator;
 
 public class LogWindow extends JInternalFrame implements LogChangeListener, Stateful
 {
@@ -34,10 +33,9 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
     private void updateLogContent()
     {
         StringBuilder content = new StringBuilder();
-        Iterator<LogEntry> iterator = m_logSource.all();
-        while (iterator.hasNext())
+        for (LogEntry logEntry : m_logSource.all())
         {
-            content.append(iterator.next().getMessage()).append("\n");
+            content.append(logEntry.getMessage()).append("\n");
         }
         m_logContent.setText(content.toString());
         m_logContent.invalidate();

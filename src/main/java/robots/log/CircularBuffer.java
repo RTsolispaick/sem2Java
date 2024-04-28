@@ -7,7 +7,7 @@ import java.util.Iterator;
  *
  * @param <T> тип элементов буфера
  */
-class CircularBuffer<T> {
+class CircularBuffer<T> implements Iterable<T> {
     private final T[] buffer;
     private final int capacity;
 
@@ -65,6 +65,11 @@ class CircularBuffer<T> {
             throw new IllegalArgumentException("Недопустимые значения start или count");
         Iterator<T> iterator = new BufferIterator(start, count);
         return iterator;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new BufferIterator(0, size());
     }
 
     /**
