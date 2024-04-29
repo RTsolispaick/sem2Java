@@ -1,6 +1,7 @@
 package robots.log;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Кольцевой буфер.
@@ -76,10 +77,9 @@ class CircularBuffer<T> implements Iterable<T> {
      * Итератор по элементам буфера.
      */
     private class BufferIterator implements Iterator<T> {
-        private final T[] snapshot;
-
         private int currentPosition;
-        private int remainingElements;
+        private final int start;
+        private final int sizeIter;
 
         /**
          * Создает итератор по элементам буфера в указанном диапазоне.
@@ -88,25 +88,25 @@ class CircularBuffer<T> implements Iterable<T> {
          * @param sizeIter количество элементов в диапазоне
          */
         public BufferIterator(int start, int sizeIter) {
-            snapshot = (T[]) new Object[sizeIter];
-            for (int i = 0; i < sizeIter; i++) {
-                snapshot[i] = buffer[(head + start + i) % capacity];
-            }
+            this.start = start;
+            this.sizeIter = sizeIter;
             currentPosition = 0;
-            remainingElements = sizeIter;
         }
 
         @Override
-        public boolean hasNext() {
-            return remainingElements > 0;
+        public synchronized boolean hasNext() {
+            return currentPosition < sizeIter;
         }
 
         @Override
-        public T next() {
-            T entry = snapshot[currentPosition];
+        public synchronized T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("Итератор не нашёл следующего значения");
+            }
+            T entry = buffer[(start + currentPosition) % capacity];
             currentPosition++;
-            remainingElements--;
             return entry;
         }
     }
+
 }

@@ -25,7 +25,7 @@ public class LogWindowSource
     /**
      * Массив активных слушателей лога.
      */
-    private volatile LogChangeListener[] m_activeListeners;
+    private volatile List<WeakReference<LogChangeListener>> m_activeListeners;
 
     /**
      * Создает источник сообщений лога с указанным размером буфера.
@@ -81,36 +81,34 @@ public class LogWindowSource
      * @param logLevel уровень сообщения лога
      * @param strMessage текст сообщения лога
      */
-    public void append(LogLevel logLevel, String strMessage)
-    {
+    public void append(LogLevel logLevel, String strMessage) {
         LogEntry entry = new LogEntry(logLevel, strMessage);
         m_messages.append(entry);
 
-        LogChangeListener [] activeListeners = m_activeListeners;
-        if (activeListeners == null)
-        {
-            synchronized (m_listeners)
-            {
-                if (m_activeListeners == null)
-                {
-                    List<LogChangeListener> temp = new ArrayList<>();
+        List<WeakReference<LogChangeListener>> activeListeners = m_activeListeners;
+        if (activeListeners == null) {
+            synchronized (m_listeners) {
+                if (m_activeListeners == null) {
+                    List<WeakReference<LogChangeListener>> temp = new ArrayList<>();
                     for (WeakReference<LogChangeListener> ref : m_listeners)
                     {
                         LogChangeListener listener = ref.get();
                         if (listener != null)
                         {
-                            temp.add(listener);
+                            temp.add(ref);
                         }
                     }
-                    activeListeners = temp.toArray(new LogChangeListener [0]);
+                    activeListeners = temp;
                     m_activeListeners = activeListeners;
                 }
             }
         }
 
-        for (LogChangeListener listener : activeListeners)
-        {
-            listener.onLogChanged();
+        for (WeakReference<LogChangeListener> ref : activeListeners) {
+            LogChangeListener listener = ref.get();
+            if (listener != null) {
+                listener.onLogChanged();
+            }
         }
     }
 
