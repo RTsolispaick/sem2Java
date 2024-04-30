@@ -21,6 +21,11 @@ public class LogWindowSource
      */
     private final ArrayList<WeakReference<LogChangeListener>> m_listeners;
 
+    /**
+     * Список слабых ссылок на активных слушателей лога.
+     */
+    private volatile ArrayList<WeakReference<LogChangeListener>> m_activeListeners;
+
 
     /**
      * Создает источник сообщений лога с указанным размером буфера.
@@ -43,6 +48,7 @@ public class LogWindowSource
         synchronized(m_listeners)
         {
             m_listeners.add(new WeakReference<>(listener));
+            m_activeListeners = null;
         }
     }
 
@@ -62,6 +68,7 @@ public class LogWindowSource
                 if (ref.get() == listener)
                 {
                     it.remove();
+                    m_activeListeners = null;
                     break;
                 }
             }
@@ -78,10 +85,25 @@ public class LogWindowSource
         LogEntry entry = new LogEntry(logLevel, strMessage);
         m_messages.append(entry);
 
-        for (WeakReference<LogChangeListener> ref : m_listeners) {
-            LogChangeListener listener = ref.get();
-            if (listener != null) {
-                listener.onLogChanged();
+        if (m_activeListeners == null) {
+            synchronized (m_listeners) {
+                if (m_activeListeners == null) {
+                    m_activeListeners = new ArrayList<>();
+                    for (WeakReference<LogChangeListener> ref : m_listeners) {
+                        LogChangeListener listener = ref.get();
+                        if (listener != null) {
+                            m_activeListeners.add(ref);
+                            listener.onLogChanged();
+                        }
+                    }
+                }
+            }
+        } else {
+            for (WeakReference<LogChangeListener> ref : m_activeListeners) {
+                LogChangeListener listener = ref.get();
+                if (listener != null) {
+                    listener.onLogChanged();
+                }
             }
         }
     }

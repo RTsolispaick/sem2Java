@@ -77,35 +77,33 @@ class CircularBuffer<T> implements Iterable<T> {
      * Итератор по элементам буфера.
      */
     private class BufferIterator implements Iterator<T> {
-        private int currentPosition;
-        private final int start;
         private final int sizeIter;
+        private final T[] snapshot;
+        private int currentPosition;
 
-        /**
-         * Создает итератор по элементам буфера в указанном диапазоне.
-         *
-         * @param start начало диапазона
-         * @param sizeIter количество элементов в диапазоне
-         */
         public BufferIterator(int start, int sizeIter) {
-            this.start = start;
             this.sizeIter = sizeIter;
-            currentPosition = 0;
+            this.snapshot = (T[]) new Object[sizeIter];
+            this.currentPosition = 0;
+
+            synchronized (buffer) {
+                for (int i = 0; i < sizeIter; i++) {
+                    snapshot[i] = buffer[(start + i) % capacity];
+                }
+            }
         }
 
         @Override
-        public synchronized boolean hasNext() {
+        public boolean hasNext() {
             return currentPosition < sizeIter;
         }
 
         @Override
-        public synchronized T next() {
+        public T next() {
             if (!hasNext()) {
                 throw new NoSuchElementException("Итератор не нашёл следующего значения");
             }
-            T entry = buffer[(start + currentPosition) % capacity];
-            currentPosition++;
-            return entry;
+            return snapshot[currentPosition++];
         }
     }
 
