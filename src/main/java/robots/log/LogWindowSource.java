@@ -3,7 +3,6 @@ package robots.log;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Источник сообщений лога. Сообщения лога хранятся в кольцевом буфере
@@ -22,10 +21,6 @@ public class LogWindowSource
      */
     private final ArrayList<WeakReference<LogChangeListener>> m_listeners;
 
-    /**
-     * Массив активных слушателей лога.
-     */
-    private volatile List<WeakReference<LogChangeListener>> m_activeListeners;
 
     /**
      * Создает источник сообщений лога с указанным размером буфера.
@@ -48,7 +43,6 @@ public class LogWindowSource
         synchronized(m_listeners)
         {
             m_listeners.add(new WeakReference<>(listener));
-            m_activeListeners = null;
         }
     }
 
@@ -68,7 +62,6 @@ public class LogWindowSource
                 if (ref.get() == listener)
                 {
                     it.remove();
-                    m_activeListeners = null;
                     break;
                 }
             }
@@ -85,26 +78,7 @@ public class LogWindowSource
         LogEntry entry = new LogEntry(logLevel, strMessage);
         m_messages.append(entry);
 
-        List<WeakReference<LogChangeListener>> activeListeners = m_activeListeners;
-        if (activeListeners == null) {
-            synchronized (m_listeners) {
-                if (m_activeListeners == null) {
-                    List<WeakReference<LogChangeListener>> temp = new ArrayList<>();
-                    for (WeakReference<LogChangeListener> ref : m_listeners)
-                    {
-                        LogChangeListener listener = ref.get();
-                        if (listener != null)
-                        {
-                            temp.add(ref);
-                        }
-                    }
-                    activeListeners = temp;
-                    m_activeListeners = activeListeners;
-                }
-            }
-        }
-
-        for (WeakReference<LogChangeListener> ref : activeListeners) {
+        for (WeakReference<LogChangeListener> ref : m_listeners) {
             LogChangeListener listener = ref.get();
             if (listener != null) {
                 listener.onLogChanged();
