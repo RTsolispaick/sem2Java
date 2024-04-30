@@ -70,7 +70,7 @@ class CircularBuffer<T> implements Iterable<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return new BufferIterator(0, size());
+        return new BufferIterator(head, size());
     }
 
     /**
