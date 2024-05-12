@@ -8,9 +8,16 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.Locale;
 
+/**
+ * Класс для сериализации и десериализации локали в JSON файл.
+ */
 public class LocaleIO {
     private final File userConfLocaleFile;
 
+    /**
+     * Конструктор класса LocaleIO.
+     * Определяет путь к файлу локали и создает его, если не существует.
+     */
     public LocaleIO() {
         String confFilePath = System.getProperty("user.home") +
                 File.separator + "Robots" +
@@ -25,6 +32,11 @@ public class LocaleIO {
         }
     }
 
+    /**
+     * Сохраняет локаль в JSON файл.
+     *
+     * @param locale сохраняемая локаль
+     */
     public void saveLocaleToJson(Locale locale) {
         try (Writer writer = new FileWriter(userConfLocaleFile)) {
             Gson gson = new Gson();
@@ -34,6 +46,11 @@ public class LocaleIO {
         }
     }
 
+    /**
+     * Загружает локаль из JSON файла.
+     *
+     * @return загруженная локаль, либо локаль по умолчанию (ru), если файл не существует или произошла ошибка при чтении
+     */
     public Locale loadLocaleFromJson() {
         try (Reader reader = new FileReader(userConfLocaleFile)) {
             Gson gson = new Gson();

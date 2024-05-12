@@ -80,6 +80,11 @@ public class PaneMenuBar extends JMenuBar {
         return systemLookAndFeel;
     }
 
+    /**
+     * Создает меню выбора локали.
+     *
+     * @return объект JMenu для меню выбора локали
+     */
     private JMenu createLocaleMenuBar() {
         JMenu localeMenu = createJMenu(resourceBundle.getString("bar.lang.name"),
                 resourceBundle.getString("bar.lang.desc"),
@@ -90,10 +95,17 @@ public class PaneMenuBar extends JMenuBar {
         return localeMenu;
     }
 
-    private JMenuItem getLocaleMenuItem(String local, String name) {
+    /**
+     * Возвращает элемент меню для выбора указанной локали.
+     *
+     * @param locale код локали
+     * @param name   название локали
+     * @return объект JMenuItem для выбора локали
+     */
+    private JMenuItem getLocaleMenuItem(String locale, String name) {
         JMenuItem changeLanguageItem = new JMenuItem(name, KeyEvent.VK_M);
         changeLanguageItem.addActionListener((event) -> {
-            if (LanguageManager.setLocale(new Locale(local))) {
+            if (LanguageManager.setLocale(new Locale(locale))) {
                 frame.closeWindowForRestart();
                 SwingUtilities.invokeLater(() -> {
                     MainApplicationFrame frame = new MainApplicationFrame();
