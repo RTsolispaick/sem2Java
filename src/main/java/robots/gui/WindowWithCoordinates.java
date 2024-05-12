@@ -1,5 +1,7 @@
 package robots.gui;
 
+import robots.locale.LanguageManager;
+import robots.locale.MessageFormatCache;
 import robots.log.Logger;
 import robots.models.RobotModel;
 import robots.serialize.Stateful;
@@ -23,7 +25,11 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
      * Конструктор класса WindowWithCoordinates.
      */
     public WindowWithCoordinates(PropertyChangeSupport propertyChangeSupport) {
-        super("Внутреннее окно", true, true, true, true);
+        super(LanguageManager.getBundle().getString("cord.title"),
+                true,
+                true,
+                true,
+                true);
         propertyChangeSupport.addPropertyChangeListener(this);
 
         xCord = new JLabel("x");
@@ -38,7 +44,12 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
         pack();
 
         setLocation(770, 10);
-        Logger.debug("Окно с координатами работает");
+
+        String[] title = {LanguageManager.getBundle().getString("cord.title")};
+        Logger.debug(MessageFormatCache.getMessageFormat(
+                        LanguageManager.getBundle().getString("logger.pattern")
+                ).format(title)
+        );
     }
 
     /**

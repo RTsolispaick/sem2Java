@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Класс WindowIO отвечает за сохранение и загрузку состояния окон в файл.
  */
-public class WindowIO {
+class WindowIO {
     private final File confFile;
 
     /**

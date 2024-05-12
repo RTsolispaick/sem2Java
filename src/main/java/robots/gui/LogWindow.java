@@ -1,5 +1,7 @@
 package robots.gui;
 
+import robots.locale.LanguageManager;
+import robots.locale.MessageFormatCache;
 import robots.log.LogChangeListener;
 import robots.log.LogEntry;
 import robots.log.LogWindowSource;
@@ -16,7 +18,11 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
 
     public LogWindow()
     {
-        super("Протокол работы", true, true, true, true);
+        super(LanguageManager.getBundle().getString("log.title"),
+                true,
+                true,
+                true,
+                true);
         m_logSource.registerListener(this);
         m_logContent = new TextArea("");
         m_logContent.setSize(200, 500);
@@ -27,7 +33,12 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
         pack();
         updateLogContent();
         setLocation(10,10);
-        Logger.debug("Протокол работает");
+
+        String[] title = {LanguageManager.getBundle().getString("log.title")};
+        Logger.debug(MessageFormatCache.getMessageFormat(
+                        LanguageManager.getBundle().getString("logger.pattern")
+                ).format(title)
+        );
     }
 
     private void updateLogContent()

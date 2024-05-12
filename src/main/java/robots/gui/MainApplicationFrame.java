@@ -1,5 +1,6 @@
 package robots.gui;
 
+import robots.locale.LanguageManager;
 import robots.log.Logger;
 import robots.serialize.Stateful;
 import robots.serialize.WindowStateManager;
@@ -11,6 +12,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * Главное окно приложения
@@ -18,6 +20,7 @@ import java.util.List;
 public class MainApplicationFrame extends JFrame implements Stateful {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private final WindowStateManager windowStateManager = new WindowStateManager();
+    private final ResourceBundle resourceBundle = LanguageManager.getBundle();
 
     /**
      * Конструктор для создания главного окна
@@ -52,18 +55,19 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         setBounds(inset, inset,
                 screenSize.width - inset * 2,
                 screenSize.height - inset * 2);
-        setTitle("Старающийся комарик");
+        setTitle(resourceBundle.getString("main.title"));
     }
 
     /**
      * Реализует логику закрытия окна
      */
     private void launchExitDialog() {
-        String [] options = {"Да", "Нет"};
+        String [] options = {resourceBundle.getString("utils.optionYes"),
+                resourceBundle.getString("utils.optionNo")};
         int userChoice = JOptionPane.showOptionDialog(
                 null,
-                "Вы уверены?",
-                "Выйти",
+                resourceBundle.getString("utils.sure"),
+                resourceBundle.getString("utils.exit"),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
@@ -73,6 +77,11 @@ public class MainApplicationFrame extends JFrame implements Stateful {
             saveStatesWindows();
             setDefaultCloseOperation(EXIT_ON_CLOSE);
         }
+    }
+
+    public void closeWindowForRestart() {
+        saveStatesWindows();
+        dispose();
     }
 
     /**
@@ -98,7 +107,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         catch (ClassNotFoundException | InstantiationException
                | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            Logger.debug("Ошибка в setLookAndFeel");
+            Logger.error(LanguageManager.getBundle().getString("logger.setlook"));
         }
     }
 
