@@ -14,6 +14,10 @@ public final class Logger
         defaultLogSource.append(LogLevel.Error, strMessage);
     }
 
+    public static void info(String strMessage){
+        defaultLogSource.append(LogLevel.Info, strMessage);
+    }
+
     public static LogWindowSource getDefaultLogSource()
     {
         return defaultLogSource;

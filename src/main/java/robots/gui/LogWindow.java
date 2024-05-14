@@ -2,10 +2,7 @@ package robots.gui;
 
 import robots.locale.LanguageManager;
 import robots.locale.MessageFormatCache;
-import robots.log.LogChangeListener;
-import robots.log.LogEntry;
-import robots.log.LogWindowSource;
-import robots.log.Logger;
+import robots.log.*;
 import robots.serialize.Stateful;
 
 import javax.swing.*;
@@ -18,7 +15,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
 
     public LogWindow()
     {
-        super(LanguageManager.getBundle().getString("log.title"),
+        super(LanguageManager.getStr("LogWindow.title"),
                 true,
                 true,
                 true,
@@ -34,19 +31,24 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
         updateLogContent();
         setLocation(10,10);
 
-        String[] title = {LanguageManager.getBundle().getString("log.title")};
-        Logger.debug(MessageFormatCache.getMessageFormat(
-                        LanguageManager.getBundle().getString("logger.pattern")
-                ).format(title)
-        );
+        Logger.debug("LogWindow.title");
     }
 
     private void updateLogContent()
     {
         StringBuilder content = new StringBuilder();
+        MessageFormatCache messageFormatCache = MessageFormatCache.getInstance();
         for (LogEntry logEntry : m_logSource.all())
         {
-            content.append(logEntry.getMessage()).append("\n");
+            String logLevel = switch (logEntry.getLevel()) {
+                case Debug -> "Logger.debug";
+                case Info -> "Logger.info";
+                case Error -> "Logger.error";
+                default -> "Logger.pass";
+            };
+            content.append(messageFormatCache.getMessageFormat(LanguageManager.getStr(logLevel))
+                            .format(new Object[]{LanguageManager.getStr(logEntry.getMessage())})
+                    ).append("\n");
         }
         m_logContent.setText(content.toString());
         m_logContent.invalidate();

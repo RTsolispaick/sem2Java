@@ -8,41 +8,54 @@ import java.util.ResourceBundle;
 /**
  * Менеджер языков предоставляет доступ к ресурсам локализации и управляет выбором языка.
  */
-public class LanguageManager {
+public final class LanguageManager {
     private static final LocaleIO localeIO = new LocaleIO();
-    private static volatile ResourceBundle instanceBundle;
-
-    private LanguageManager() {
-    }
+    private ResourceBundle resourceBundle;
 
     /**
-     * Получает объект ResourceBundle, представляющий ресурсы локализации.
-     * Если объект еще не создан, он инициализируется на основе текущей локали, загруженной из сохраненных данных.
-     *
-     * @return объект ResourceBundle с ресурсами локализации
+     * Приватный конструктор. Инициализирует объект ResourceBundle на основе текущей локали, загруженной из сохраненных данных.
      */
-    public static ResourceBundle getBundle() {
-        if (instanceBundle == null) {
-            instanceBundle = ResourceBundle.getBundle("locale", localeIO.loadLocaleFromJson());
-        }
-        return instanceBundle;
+    private LanguageManager() {
+        resourceBundle = ResourceBundle.getBundle("locale", localeIO.loadLocaleFromFile());
+    }
+
+    private static class LanguageManagerHandler {
+        private final static LanguageManager instance = new LanguageManager();
     }
 
     /**
-     * Устанавливает новую локаль и обновляет объект ResourceBundle с учетом новой локали.
+     * Получает экземпляр класса LanguageManager.
+     *
+     * @return экземпляр класса LanguageManager
+     */
+    private static LanguageManager getInstance() {
+        return LanguageManagerHandler.instance;
+    }
+
+    /**
+     * Получает строковое значение из ресурсов локализации по указанному ключу.
+     *
+     * @param propName ключ ресурса
+     * @return строковое значение из ресурсов локализации
+     */
+    public static String getStr(String propName) {
+        return getInstance().resourceBundle.getString(propName);
+    }
+
+    /**
+     * Устанавливает новую локаль и обновляет ресурсы локализации с учетом новой локали.
      * Если указанная локаль совпадает с текущей, изменения не производятся.
      * Новая локаль сохраняется для последующих вызовов.
      *
      * @param locale новая локаль
      * @return true, если локаль была изменена, иначе false
      */
-    public synchronized static boolean setLocale(Locale locale) {
-        if (locale.equals(instanceBundle.getLocale()))
+    public static boolean setLocale(Locale locale) {
+        if (locale.equals(getInstance().resourceBundle.getLocale()))
             return false;
 
-        instanceBundle = ResourceBundle.getBundle("locale", locale);
-
-        localeIO.saveLocaleToJson(locale);
+        getInstance().resourceBundle = ResourceBundle.getBundle("locale", locale);
+        localeIO.saveLocaleToFile(locale);
 
         return true;
     }

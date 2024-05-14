@@ -9,14 +9,12 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 /**
  * Отвечает за создание и поведение MenuBar окна {@link #frame}
  */
 public class PaneMenuBar extends JMenuBar {
     private final MainApplicationFrame frame;
-    private final ResourceBundle resourceBundle = LanguageManager.getBundle();
 
     /**
      * Создаёт объект {@link PaneMenuBar} с объектом окна {@link MainApplicationFrame}
@@ -50,12 +48,12 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenu} c набором тем для прилоежния
      */
     private JMenu createViewModeBar() {
-        JMenu lookAndFeelMenu = createJMenu(resourceBundle.getString("bar.view.name"),
-                resourceBundle.getString("bar.view.desc"), KeyEvent.VK_S);
+        JMenu lookAndFeelMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.viewMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.viewMenu.menuDesc"), KeyEvent.VK_S);
 
-        lookAndFeelMenu.add(getViewMenuItem(resourceBundle.getString("bar.view.system"),
+        lookAndFeelMenu.add(getViewMenuItem(LanguageManager.getStr("PaneMenuBar.viewMenu.system"),
                     UIManager.getSystemLookAndFeelClassName()));
-        lookAndFeelMenu.add(getViewMenuItem(resourceBundle.getString("bar.view.univ"),
+        lookAndFeelMenu.add(getViewMenuItem(LanguageManager.getStr("PaneMenuBar.viewMenu.univ"),
                     UIManager.getCrossPlatformLookAndFeelClassName()));
         lookAndFeelMenu.add(getViewMenuItem("Nimbis",
                 "javax.swing.plaf.nimbus.NimbusLookAndFeel"));
@@ -86,12 +84,12 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект JMenu для меню выбора локали
      */
     private JMenu createLocaleMenuBar() {
-        JMenu localeMenu = createJMenu(resourceBundle.getString("bar.lang.name"),
-                resourceBundle.getString("bar.lang.desc"),
+        JMenu localeMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.langMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.langMenu.menuDesc"),
                 KeyEvent.VK_M);
 
-        localeMenu.add(getLocaleMenuItem("en", resourceBundle.getString("bar.lang.en")));
-        localeMenu.add(getLocaleMenuItem("ru", resourceBundle.getString("bar.lang.ru")));
+        localeMenu.add(getLocaleMenuItem("en", LanguageManager.getStr("PaneMenuBar.langMenu.enItemName")));
+        localeMenu.add(getLocaleMenuItem("ru", LanguageManager.getStr("PaneMenuBar.langMenu.ruItemName")));
         return localeMenu;
     }
 
@@ -106,7 +104,7 @@ public class PaneMenuBar extends JMenuBar {
         JMenuItem changeLanguageItem = new JMenuItem(name, KeyEvent.VK_M);
         changeLanguageItem.addActionListener((event) -> {
             if (LanguageManager.setLocale(new Locale(locale))) {
-                frame.closeWindowForRestart();
+                frame.dispose();
                 SwingUtilities.invokeLater(() -> {
                     MainApplicationFrame frame = new MainApplicationFrame();
                     frame.setVisible(true);
@@ -121,8 +119,8 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenu} c набором инструментов для отладки
      */
     private JMenu createTestMenuBar() {
-        JMenu testMenu = createJMenu(resourceBundle.getString("bar.test.name"),
-                resourceBundle.getString("bar.test.desc"), KeyEvent.VK_T);
+        JMenu testMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.testMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.testMenu.menuDesc"), KeyEvent.VK_T);
 
         testMenu.add(getTestMenuItem());
         return testMenu;
@@ -133,9 +131,9 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem} с реализацией интрумента отладки
      */
     private JMenuItem getTestMenuItem() {
-        JMenuItem addLogMessageItem = new JMenuItem(resourceBundle.getString("bar.test.mess"), KeyEvent.VK_T);
+        JMenuItem addLogMessageItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.testMenu.mess"), KeyEvent.VK_T);
         addLogMessageItem.addActionListener((event) ->
-                Logger.debug(LanguageManager.getBundle().getString("logger.test")));
+                Logger.info("Logger.testMess"));
         return addLogMessageItem;
     }
 
@@ -144,8 +142,8 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenu} c некоторыми опциями
      */
     private JMenu createOptionBar() {
-        JMenu quitMenu = createJMenu(resourceBundle.getString("bar.option.name"),
-                resourceBundle.getString("bar.option.desc"), KeyEvent.VK_O);
+        JMenu quitMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.optionMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.optionMenu.menuDesc"), KeyEvent.VK_O);
 
         quitMenu.add(getExitMentItem());
         quitMenu.add(getInfoAboutProgram());
@@ -157,7 +155,7 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem} генерируеющий событияе закрытия окна
      */
     private JMenuItem getExitMentItem() {
-        JMenuItem addQuitItem = new JMenuItem(resourceBundle.getString("bar.option.exit"), KeyEvent.VK_Q);
+        JMenuItem addQuitItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.optionMenu.exitItemName"), KeyEvent.VK_Q);
         addQuitItem.addActionListener((event) -> {
             WindowEvent closeEvent = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
             Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeEvent);
@@ -170,11 +168,11 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem}, выводящий информацию о приложении в отдельном окне
      */
     private JMenuItem getInfoAboutProgram() {
-        JMenuItem addInfoItem = new JMenuItem(resourceBundle.getString("bar.option.info"), KeyEvent.VK_I);
+        JMenuItem addInfoItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.optionMenu.infoItemName"), KeyEvent.VK_I);
         addInfoItem.addActionListener(e -> {
-            String message = resourceBundle.getString("bar.option.info.mess");
+            String message = LanguageManager.getStr("PaneMenuBar.optionMenu.infoItem.mess");
 
-            JDialog dialog = new JDialog(frame, resourceBundle.getString("main.title"), true);
+            JDialog dialog = new JDialog(frame, LanguageManager.getStr("MainApplicationFrame.title"), true);
 
             JLabel label = new JLabel();
             label.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -182,7 +180,7 @@ public class PaneMenuBar extends JMenuBar {
             label.setHorizontalAlignment(SwingConstants.CENTER);
             label.setFont(new Font("Arial", Font.PLAIN, 15));
 
-            JButton button = new JButton(resourceBundle.getString("bar.option.info.button"));
+            JButton button = new JButton(LanguageManager.getStr("PaneMenuBar.optionMenu.infoItem.buttonName"));
             button.addActionListener(e1 -> dialog.dispose());
 
             JPanel buttonPanel = new JPanel();

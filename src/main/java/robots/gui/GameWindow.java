@@ -2,7 +2,6 @@ package robots.gui;
 
 import robots.controller.GameController;
 import robots.locale.LanguageManager;
-import robots.locale.MessageFormatCache;
 import robots.log.Logger;
 import robots.models.RobotModel;
 import robots.serialize.Stateful;
@@ -21,7 +20,7 @@ public class GameWindow extends JInternalFrame implements Stateful {
      * @param propertyChangeSupport объект PropertyChangeSupport для обмена данными с контроллером игры
      */
     public GameWindow(PropertyChangeSupport propertyChangeSupport) {
-        super(LanguageManager.getBundle().getString("game.title"),
+        super(LanguageManager.getStr("GameWindow.title"),
                 true,
                 true,
                 true,
@@ -40,11 +39,7 @@ public class GameWindow extends JInternalFrame implements Stateful {
         setBounds(230, 10,
                 530, 530);
 
-        String[] title = {LanguageManager.getBundle().getString("game.title")};
-        Logger.debug(MessageFormatCache.getMessageFormat(
-                        LanguageManager.getBundle().getString("logger.pattern")
-                ).format(title)
-        );
+        Logger.debug("GameWindow.title");
     }
 
     @Override

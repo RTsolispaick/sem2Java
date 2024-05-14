@@ -12,7 +12,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * Главное окно приложения
@@ -20,7 +19,6 @@ import java.util.ResourceBundle;
 public class MainApplicationFrame extends JFrame implements Stateful {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private final WindowStateManager windowStateManager = new WindowStateManager();
-    private final ResourceBundle resourceBundle = LanguageManager.getBundle();
 
     /**
      * Конструктор для создания главного окна
@@ -55,19 +53,19 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         setBounds(inset, inset,
                 screenSize.width - inset * 2,
                 screenSize.height - inset * 2);
-        setTitle(resourceBundle.getString("main.title"));
+        setTitle(LanguageManager.getStr("MainApplicationFrame.title"));
     }
 
     /**
      * Реализует логику закрытия окна
      */
     private void launchExitDialog() {
-        String [] options = {resourceBundle.getString("utils.optionYes"),
-                resourceBundle.getString("utils.optionNo")};
+        String [] options = {LanguageManager.getStr("Utils.optionYes"),
+                LanguageManager.getStr("Utils.optionNo")};
         int userChoice = JOptionPane.showOptionDialog(
                 null,
-                resourceBundle.getString("utils.sure"),
-                resourceBundle.getString("utils.exit"),
+                LanguageManager.getStr("Utils.sure"),
+                LanguageManager.getStr("Utils.exit"),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
@@ -77,11 +75,6 @@ public class MainApplicationFrame extends JFrame implements Stateful {
             saveStatesWindows();
             setDefaultCloseOperation(EXIT_ON_CLOSE);
         }
-    }
-
-    public void closeWindowForRestart() {
-        saveStatesWindows();
-        dispose();
     }
 
     /**
@@ -107,7 +100,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         catch (ClassNotFoundException | InstantiationException
                | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            Logger.error(LanguageManager.getBundle().getString("logger.setlook"));
+            Logger.error("Logger.setlookMess");
         }
     }
 
@@ -140,6 +133,11 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         return statefuls;
     }
 
+    @Override
+    public void dispose() {
+        saveStatesWindows();
+        super.dispose();
+    }
 
     @Override
     public String getIDFrame() {
