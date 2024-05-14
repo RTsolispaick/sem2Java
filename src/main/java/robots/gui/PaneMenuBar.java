@@ -1,5 +1,6 @@
 package robots.gui;
 
+import robots.locale.LanguageManager;
 import robots.log.Logger;
 
 import javax.swing.*;
@@ -7,6 +8,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
 
 /**
  * Отвечает за создание и поведение MenuBar окна {@link #frame}
@@ -23,6 +25,7 @@ public class PaneMenuBar extends JMenuBar {
         this.frame = mainApplicationFrame;
         add(createViewModeBar());
         add(createTestMenuBar());
+        add(createLocaleMenuBar());
         add(createOptionBar());
     }
 
@@ -45,12 +48,12 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenu} c набором тем для прилоежния
      */
     private JMenu createViewModeBar() {
-        JMenu lookAndFeelMenu = createJMenu("Режим отображения",
-                "Управление режимом отображения приложения", KeyEvent.VK_S);
+        JMenu lookAndFeelMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.viewMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.viewMenu.menuDesc"), KeyEvent.VK_S);
 
-        lookAndFeelMenu.add(getViewMenuItem("Системная схема",
+        lookAndFeelMenu.add(getViewMenuItem(LanguageManager.getStr("PaneMenuBar.viewMenu.system"),
                     UIManager.getSystemLookAndFeelClassName()));
-        lookAndFeelMenu.add(getViewMenuItem("Универсальная схема",
+        lookAndFeelMenu.add(getViewMenuItem(LanguageManager.getStr("PaneMenuBar.viewMenu.univ"),
                     UIManager.getCrossPlatformLookAndFeelClassName()));
         lookAndFeelMenu.add(getViewMenuItem("Nimbis",
                 "javax.swing.plaf.nimbus.NimbusLookAndFeel"));
@@ -76,12 +79,48 @@ public class PaneMenuBar extends JMenuBar {
     }
 
     /**
+     * Создает меню выбора локали.
+     *
+     * @return объект JMenu для меню выбора локали
+     */
+    private JMenu createLocaleMenuBar() {
+        JMenu localeMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.langMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.langMenu.menuDesc"),
+                KeyEvent.VK_M);
+
+        localeMenu.add(getLocaleMenuItem("en", LanguageManager.getStr("PaneMenuBar.langMenu.enItemName")));
+        localeMenu.add(getLocaleMenuItem("ru", LanguageManager.getStr("PaneMenuBar.langMenu.ruItemName")));
+        return localeMenu;
+    }
+
+    /**
+     * Возвращает элемент меню для выбора указанной локали.
+     *
+     * @param locale код локали
+     * @param name   название локали
+     * @return объект JMenuItem для выбора локали
+     */
+    private JMenuItem getLocaleMenuItem(String locale, String name) {
+        JMenuItem changeLanguageItem = new JMenuItem(name, KeyEvent.VK_M);
+        changeLanguageItem.addActionListener((event) -> {
+            if (LanguageManager.setLocale(new Locale(locale))) {
+                frame.dispose();
+                SwingUtilities.invokeLater(() -> {
+                    MainApplicationFrame frame = new MainApplicationFrame();
+                    frame.setVisible(true);
+                });
+            }
+        });
+        return changeLanguageItem;
+    }
+
+    /**
      * Создание пункта меню для отладки приложения
      * @return объект {@link JMenu} c набором инструментов для отладки
      */
     private JMenu createTestMenuBar() {
-        JMenu testMenu = createJMenu("Тесты",
-                "Тестовые команды", KeyEvent.VK_T);
+        JMenu testMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.testMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.testMenu.menuDesc"), KeyEvent.VK_T);
 
         testMenu.add(getTestMenuItem());
         return testMenu;
@@ -92,9 +131,9 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem} с реализацией интрумента отладки
      */
     private JMenuItem getTestMenuItem() {
-        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_T);
+        JMenuItem addLogMessageItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.testMenu.mess"), KeyEvent.VK_T);
         addLogMessageItem.addActionListener((event) ->
-                Logger.debug("Всё нормально"));
+                Logger.info("Logger.testMess"));
         return addLogMessageItem;
     }
 
@@ -103,8 +142,8 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenu} c некоторыми опциями
      */
     private JMenu createOptionBar() {
-        JMenu quitMenu = createJMenu("Опции",
-                "Опции окна", KeyEvent.VK_O);
+        JMenu quitMenu = createJMenu(LanguageManager.getStr("PaneMenuBar.optionMenu.menuName"),
+                LanguageManager.getStr("PaneMenuBar.optionMenu.menuDesc"), KeyEvent.VK_O);
 
         quitMenu.add(getExitMentItem());
         quitMenu.add(getInfoAboutProgram());
@@ -116,7 +155,7 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem} генерируеющий событияе закрытия окна
      */
     private JMenuItem getExitMentItem() {
-        JMenuItem addQuitItem = new JMenuItem("Выход", KeyEvent.VK_Q);
+        JMenuItem addQuitItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.optionMenu.exitItemName"), KeyEvent.VK_Q);
         addQuitItem.addActionListener((event) -> {
             WindowEvent closeEvent = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
             Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeEvent);
@@ -129,15 +168,11 @@ public class PaneMenuBar extends JMenuBar {
      * @return объект {@link JMenuItem}, выводящий информацию о приложении в отдельном окне
      */
     private JMenuItem getInfoAboutProgram() {
-        JMenuItem addInfoItem = new JMenuItem("О программе", KeyEvent.VK_I);
+        JMenuItem addInfoItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.optionMenu.infoItemName"), KeyEvent.VK_I);
         addInfoItem.addActionListener(e -> {
-            String message = "<html><div style='text-align: center;'>Старающийся комарик - это увлекательная игра, в которой игроку предстоит помочь маленькому комарику долететь до точки назначения.</div>" +
-                    "<div style='text-align: center;'>Несмотря на свою маленькую и хрупкую природу, комарик мечтает достичь цели, находящейся на другом конце экрана.</div>" +
-                    "<div style='text-align: center;'>Однако ему предстоит преодолеть множество препятствий и опасностей...</div>" +
-                    "<div style='text-align: center;'>Хорошей игры!</div>" +
-                    "<div style='text-align: right;'>prod. by Клепинин А.В</html>";
+            String message = LanguageManager.getStr("PaneMenuBar.optionMenu.infoItem.mess");
 
-            JDialog dialog = new JDialog(frame, "Старающийся комарик", true);
+            JDialog dialog = new JDialog(frame, LanguageManager.getStr("MainApplicationFrame.title"), true);
 
             JLabel label = new JLabel();
             label.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -145,7 +180,7 @@ public class PaneMenuBar extends JMenuBar {
             label.setHorizontalAlignment(SwingConstants.CENTER);
             label.setFont(new Font("Arial", Font.PLAIN, 15));
 
-            JButton button = new JButton("Спасибо!");
+            JButton button = new JButton(LanguageManager.getStr("PaneMenuBar.optionMenu.infoItem.buttonName"));
             button.addActionListener(e1 -> dialog.dispose());
 
             JPanel buttonPanel = new JPanel();

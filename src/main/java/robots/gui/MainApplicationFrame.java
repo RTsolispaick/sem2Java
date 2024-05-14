@@ -1,5 +1,6 @@
 package robots.gui;
 
+import robots.locale.LanguageManager;
 import robots.log.Logger;
 import robots.serialize.Stateful;
 import robots.serialize.WindowStateManager;
@@ -52,18 +53,19 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         setBounds(inset, inset,
                 screenSize.width - inset * 2,
                 screenSize.height - inset * 2);
-        setTitle("Старающийся комарик");
+        setTitle(LanguageManager.getStr("MainApplicationFrame.title"));
     }
 
     /**
      * Реализует логику закрытия окна
      */
     private void launchExitDialog() {
-        String [] options = {"Да", "Нет"};
+        String [] options = {LanguageManager.getStr("Utils.optionYes"),
+                LanguageManager.getStr("Utils.optionNo")};
         int userChoice = JOptionPane.showOptionDialog(
                 null,
-                "Вы уверены?",
-                "Выйти",
+                LanguageManager.getStr("Utils.sure"),
+                LanguageManager.getStr("Utils.exit"),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
@@ -98,7 +100,7 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         catch (ClassNotFoundException | InstantiationException
                | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
-            Logger.debug("Ошибка в setLookAndFeel");
+            Logger.error("Logger.setlookMess");
         }
     }
 
@@ -131,6 +133,11 @@ public class MainApplicationFrame extends JFrame implements Stateful {
         return statefuls;
     }
 
+    @Override
+    public void dispose() {
+        saveStatesWindows();
+        super.dispose();
+    }
 
     @Override
     public String getIDFrame() {

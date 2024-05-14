@@ -2,7 +2,7 @@ package robots.log;
 
 public final class Logger
 {
-    private static final LogWindowSource defaultLogSource = new LogWindowSource(100);
+    private static final LogWindowSource defaultLogSource = new LogWindowSource(10);
 
     public static void debug(String strMessage)
     {
@@ -12,6 +12,10 @@ public final class Logger
     public static void error(String strMessage)
     {
         defaultLogSource.append(LogLevel.Error, strMessage);
+    }
+
+    public static void info(String strMessage){
+        defaultLogSource.append(LogLevel.Info, strMessage);
     }
 
     public static LogWindowSource getDefaultLogSource()

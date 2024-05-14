@@ -1,6 +1,7 @@
 package robots.gui;
 
 import robots.controller.GameController;
+import robots.locale.LanguageManager;
 import robots.log.Logger;
 import robots.models.RobotModel;
 import robots.serialize.Stateful;
@@ -19,7 +20,11 @@ public class GameWindow extends JInternalFrame implements Stateful {
      * @param propertyChangeSupport объект PropertyChangeSupport для обмена данными с контроллером игры
      */
     public GameWindow(PropertyChangeSupport propertyChangeSupport) {
-        super("Игровое поле", true, true, true, true);
+        super(LanguageManager.getStr("GameWindow.title"),
+                true,
+                true,
+                true,
+                true);
 
         RobotModel robotModel = new RobotModel(propertyChangeSupport);
         GameVisualizer gameVisualizer = new GameVisualizer(propertyChangeSupport);
@@ -33,7 +38,8 @@ public class GameWindow extends JInternalFrame implements Stateful {
 
         setBounds(230, 10,
                 530, 530);
-        Logger.debug("Окно игры работает");
+
+        Logger.debug("GameWindow.title");
     }
 
     @Override
