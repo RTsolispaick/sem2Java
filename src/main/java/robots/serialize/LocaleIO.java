@@ -28,8 +28,7 @@ public class LocaleIO {
         try {
             FileUtils.forceMkdirParent(userConfLocaleFile);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.err.println("Не удалось создать структуру приложения");
+            System.err.println("Не удалось создать структуру приложения. Причина: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -44,8 +43,7 @@ public class LocaleIO {
             Gson gson = new Gson();
             gson.toJson(locale, writer);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.err.println("Ошибка в OutputStream");
+            System.err.println("Ошибка в OutputStream. Причина: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -62,8 +60,8 @@ public class LocaleIO {
             Locale temp = gson.fromJson(reader, type);
             return temp == null ? new Locale("ru") : temp;
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.err.println("Файл не существует или была ошибка чтения из файла" + userConfLocaleFile.getPath());
+            System.err.println("Файл не существует или была ошибка чтения из файла " + userConfLocaleFile.getPath() +
+                    ". Причина: " + e.getMessage());
             e.printStackTrace();
             return new Locale("ru");
         }
