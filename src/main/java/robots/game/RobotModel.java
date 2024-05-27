@@ -1,14 +1,13 @@
-package robots.models;
+package robots.game;
 
 import java.awt.*;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
  * Класс RobotModel представляет модель робота в игре.
  */
 public class RobotModel {
-    private final PropertyChangeSupport propertyChangeSupport;
-
     // Позиция робота
     private double posX = 100;
     private double posY = 100;
@@ -24,13 +23,13 @@ public class RobotModel {
     private int targetX = 150;
     private int targetY = 100;
 
+    private final PropertyChangeSupport pcs;
+
     /**
      * Конструктор класса Robot.
-     *
-     * @param propertyChangeSupport объект PropertyChangeSupport для поддержки событий изменения свойств
      */
-    public RobotModel(PropertyChangeSupport propertyChangeSupport) {
-        this.propertyChangeSupport = propertyChangeSupport;
+    public RobotModel() {
+        pcs = new PropertyChangeSupport(this);
     }
 
     /**
@@ -129,10 +128,18 @@ public class RobotModel {
     }
 
     /**
+     * Добавляет слушателя
+     * @param pcl слушатель
+     */
+    public void addListener(PropertyChangeListener pcl) {
+        pcs.addPropertyChangeListener(pcl);
+    }
+
+    /**
      * Уведомляет слушателей об изменении состояния модели робота.
      */
     private void notifyListeners() {
-        propertyChangeSupport.firePropertyChange("robot_update", null, this);
+        pcs.firePropertyChange("model_update", null, this);
     }
 
     public double getPosX() {

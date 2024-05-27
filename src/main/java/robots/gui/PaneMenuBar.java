@@ -1,13 +1,16 @@
 package robots.gui;
 
+import robots.game.MVCController;
 import robots.locale.LanguageManager;
 import robots.log.Logger;
+import robots.utils.ModuleLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Locale;
 
 /**
@@ -146,6 +149,7 @@ public class PaneMenuBar extends JMenuBar {
                 LanguageManager.getStr("PaneMenuBar.optionMenu.menuDesc"), KeyEvent.VK_O);
 
         quitMenu.add(getExitMentItem());
+        quitMenu.add(getCreateChangeGameMenuItem());
         quitMenu.add(getInfoAboutProgram());
         return quitMenu;
     }
@@ -162,6 +166,38 @@ public class PaneMenuBar extends JMenuBar {
         });
         return addQuitItem;
     }
+
+    /**
+     * Создает и возвращает JMenuItem для изменения игры.
+     * При выборе этого элемента меню открывается диалог для выбора JAR файла и класса модуля,
+     * затем загружает и инициализирует выбранный модуль и перезапускает игру с новым модулем.
+     *
+     * @return JMenuItem для изменения игры.
+     */
+    private JMenuItem getCreateChangeGameMenuItem() {
+        JMenuItem changeGameMenuItem = new JMenuItem(LanguageManager.getStr("PaneMenuBar.optionMenu.changeGame"), KeyEvent.VK_I);
+        changeGameMenuItem.addActionListener(e -> {
+            ModuleLoaderDialog moduleLoaderDialog = new ModuleLoaderDialog(frame);
+            File jarFile = moduleLoaderDialog.getSelectedJarFile();
+            String className = moduleLoaderDialog.getModuleClassPath();
+
+            if (jarFile == null || className == null || className.isEmpty()) {
+                return;
+            }
+
+            try {
+                ModuleLoader moduleLoader = new ModuleLoader(jarFile);
+                MVCController mvcController = moduleLoader.loadController(className);
+                frame.restartGame(mvcController);
+            } catch (RuntimeException e1) {
+                System.err.println(e1.getMessage());
+                e1.printStackTrace();
+            }
+        });
+        return changeGameMenuItem;
+    }
+
+
 
     /**
      * Опция, предоставляющая информацию о программе

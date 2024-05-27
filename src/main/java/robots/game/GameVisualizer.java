@@ -1,28 +1,24 @@
-package robots.gui;
-
-import robots.models.RobotModel;
+package robots.game;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 
 /**
  * Класс GameVisualizer представляет собой панель для визуализации состояния робота и его цели.
  */
-public class GameVisualizer extends JPanel implements PropertyChangeListener {
-    private RobotModel robotModel;
+public class GameVisualizer extends JComponent implements PropertyChangeListener {
+    private final RobotModel robotModel;
 
     /**
      * Создает новый объект GameVisualizer.
      * Устанавливает параметры двойной буферизации для улучшения производительности отрисовки и
      * подписывается на события изменения состояния робота через объект PropertyChangeSupport.
-     *
-     * @param propertyChangeSupport объект PropertyChangeSupport для подписки на события изменения состояния робота
      */
-    public GameVisualizer(PropertyChangeSupport propertyChangeSupport) {
-        propertyChangeSupport.addPropertyChangeListener(this);
+    public GameVisualizer(RobotModel robotModel) {
+        this.robotModel = robotModel;
+        robotModel.addListener(this);
         setDoubleBuffered(true);
     }
 
@@ -108,8 +104,7 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("robot_update")) {
-            this.robotModel = (RobotModel) evt.getNewValue();
+        if (evt.getPropertyName().equals("model_update")) {
             onRedrawEvent();
         }
     }
