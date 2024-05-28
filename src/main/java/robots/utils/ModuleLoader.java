@@ -1,10 +1,13 @@
 package robots.utils;
 
 import robots.game.MVCController;
+import robots.game.MVCControllerWithWindows;
 import robots.log.Logger;
 
+import javax.swing.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -40,7 +43,55 @@ public class ModuleLoader {
     public MVCController loadController(String className) throws RuntimeException {
         try {
             Class<?> clazz = urlClassLoader.loadClass(className);
-            return (MVCController) clazz.getConstructor().newInstance();
+            Object object = clazz.getConstructor().newInstance();
+            Method getPainter = clazz.getMethod("getPainter");
+            try {
+                Method getWindows = clazz.getMethod("getWindows");
+                return new MVCControllerWithWindows() {
+                    @Override
+                    public JInternalFrame[] getWindows() {
+                        try {
+                            return (JInternalFrame[]) getWindows.invoke(object);
+                        } catch (IllegalAccessException e) {
+                            Logger.error("moduleLoader.illegalAccess");
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            Logger.error("moduleLoader.invocationTarget");
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    @Override
+                    public JComponent getPainter() {
+                        try {
+                            return (JComponent) getPainter.invoke(object);
+                        }catch (IllegalAccessException e) {
+                            Logger.error("moduleLoader.illegalAccess");
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            Logger.error("moduleLoader.invocationTarget");
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+            } catch (NoSuchMethodException e) {
+                return new MVCController() {
+                    @Override
+                    public JComponent getPainter() {
+                        try {
+                            return (JComponent) getPainter.invoke(object);
+                        }catch (IllegalAccessException e) {
+                            Logger.error("moduleLoader.illegalAccess");
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            Logger.error("moduleLoader.invocationTarget");
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+            } catch (SecurityException e) {
+                throw new RuntimeException(e);
+            }
         } catch (ClassNotFoundException e) {
             Logger.error("moduleLoader.classNotFound");
             throw new RuntimeException(e);
