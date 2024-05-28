@@ -1,5 +1,8 @@
 package robots.gui;
 
+import robots.game.MVCControllerWithWindows;
+import robots.game.MVCController;
+import robots.game.ModuleController;
 import robots.locale.LanguageManager;
 import robots.log.Logger;
 import robots.serialize.Stateful;
@@ -9,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeSupport;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,8 @@ import java.util.List;
 public class MainApplicationFrame extends JFrame implements Stateful {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private final WindowStateManager windowStateManager = new WindowStateManager();
+    private GameWindow gameWindow;
+    private MVCController mvcController;
 
     /**
      * Конструктор для создания главного окна
@@ -37,15 +42,21 @@ public class MainApplicationFrame extends JFrame implements Stateful {
             }
         });
 
-        PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-        addWindow(new GameWindow(propertyChangeSupport));
-        addWindow(new WindowWithCoordinates(propertyChangeSupport));
         addWindow(new LogWindow());
+
+        mvcController = new ModuleController();
+
+        gameWindow = new GameWindow(mvcController.getPainter());
+        addWindow(gameWindow);
+
+        if (mvcController instanceof MVCControllerWithWindows mvcController)
+            addDependedWindows(mvcController);
+
         restoreStatesWindows();
     }
 
     /**
-     * Устанавливает визуальные отношения окна (размер, название и станадартную тему)
+     * Устанавливает визуальные отношения окна (размер, название и стандартную тему)
      */
     private void setVisualMainFrame() {
         int inset = 50;
@@ -131,6 +142,64 @@ public class MainApplicationFrame extends JFrame implements Stateful {
                 statefuls.add(statefulFrame);
 
         return statefuls;
+    }
+
+    /**
+     * Метод для перезапуска игры на основе загруженного класса, реализующего интерфейс {@link MVCController}
+     * @param newMvcController класс, реализующий интерфейс {@link MVCController}
+     */
+    public void restartGame(MVCController newMvcController) {
+        saveStatesWindows();
+        disposeGameWindowAndDependentInternal();
+
+        mvcController = newMvcController;
+
+        gameWindow = new GameWindow(mvcController.getPainter());
+        addWindow(gameWindow);
+
+        if (newMvcController instanceof MVCControllerWithWindows mvcControllerWithWindows)
+            addDependedWindows(mvcControllerWithWindows);
+
+        restoreStatesWindows();
+    }
+
+    /**
+     * Метод для закрытия окон {@link GameWindow} и зависимых окон от текущего {@link MVCController},
+     * если он реализует интерфейс {@link MVCControllerWithWindows}
+     */
+    private void disposeGameWindowAndDependentInternal() {
+        if (gameWindow == null) return;
+
+        if (mvcController instanceof MVCControllerWithWindows mvcControllerWithWindows) {
+            for (JInternalFrame frame : mvcControllerWithWindows.getWindows()) {
+                try {
+                    frame.setClosed(true);
+                } catch (PropertyVetoException e) {
+                    System.err.println("Ошибка при закрытии зависимого внутреннего окна: " + e.getMessage());
+                    e.printStackTrace();
+                }
+                desktopPane.remove(frame);
+            }
+        }
+
+        try {
+            gameWindow.setClosed(true);
+        } catch (PropertyVetoException e) {
+            System.err.println("Ошибка при закрытии окна GameWindow: " + e.getMessage());
+            e.printStackTrace();
+        }
+        desktopPane.remove(gameWindow);
+        desktopPane.repaint();
+    }
+
+    /**
+     * Добавление зависимых окон от {@link MVCController}, если он реализует интерфейс {@link MVCControllerWithWindows}
+     * @param mvcController класс реализующий интерфейс {@link MVCControllerWithWindows}
+     */
+    private void addDependedWindows(MVCControllerWithWindows mvcController) {
+        JInternalFrame[] jInternalFrames = mvcController.getWindows();
+        for (JInternalFrame jInternalFrame : jInternalFrames)
+            addWindow(jInternalFrame);
     }
 
     @Override

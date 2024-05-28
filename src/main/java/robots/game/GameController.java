@@ -1,7 +1,4 @@
-package robots.controller;
-
-import robots.gui.GameVisualizer;
-import robots.models.RobotModel;
+package robots.game;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

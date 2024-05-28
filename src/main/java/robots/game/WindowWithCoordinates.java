@@ -1,15 +1,12 @@
-package robots.gui;
+package robots.game;
 
 import robots.locale.LanguageManager;
-import robots.log.Logger;
-import robots.models.RobotModel;
 import robots.serialize.Stateful;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.text.DecimalFormat;
 
 /**
@@ -23,13 +20,12 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
     /**
      * Конструктор класса WindowWithCoordinates.
      */
-    public WindowWithCoordinates(PropertyChangeSupport propertyChangeSupport) {
+    public WindowWithCoordinates() {
         super(LanguageManager.getStr("WindowWithCoordinates.title"),
                 true,
                 true,
                 true,
                 true);
-        propertyChangeSupport.addPropertyChangeListener(this);
 
         xCord = new JLabel("x");
         yCord = new JLabel("y");
@@ -43,14 +39,10 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
         pack();
 
         setLocation(770, 10);
-
-        Logger.debug("WindowWithCoordinates.title");
     }
 
     /**
      * Обновляет отображаемые координаты на основе состояния робота.
-     *
-     * @param robotModel модель робота
      */
     private void updateCoords(RobotModel robotModel) {
         xCord.setText("x: " + df.format(robotModel.getPosX()));
@@ -59,9 +51,8 @@ public class WindowWithCoordinates extends JInternalFrame implements Stateful, P
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("robot_update")) {
-            RobotModel robotModel = (RobotModel) evt.getNewValue();
-            updateCoords(robotModel);
+        if (evt.getPropertyName().equals("model_update")) {
+            updateCoords((RobotModel) evt.getNewValue());
         }
     }
 
